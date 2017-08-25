@@ -39,4 +39,7 @@ command = command + [
 os.makedirs( backup_directory )
 subprocess.call( command )
 
+if os.path.exists( linkref_directory ) :
+	os.unlink( linkref_directory )
+
 os.symlink( backup_directory, linkref_directory )
