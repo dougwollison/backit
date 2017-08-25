@@ -6,11 +6,11 @@ from api import B2
 from shared import config
 
 backup_dir = os.path.realpath( config.get( 'rsync', 'target_base' ) )
-account_id = config.get( 'b2', 'account_id' )
-account_key = config.get( 'b2', 'account_key' )
-bucket = config.get( 'b2', 'bucket' )
+account_id = config.get( 'backblaze', 'account_id' )
+account_key = config.get( 'backblaze', 'account_key' )
+bucket = config.get( 'backblaze', 'bucket' )
 
-folders = config.get( 'b2', 'separate_folders' )
+folders = config.get( 'backblaze', 'separate_folders' )
 
 api = B2( account_id, account_key )
 
