@@ -1,0 +1,30 @@
+# The rsync settings
+[rsync]
+
+# - The username and server, recommend using an SSH alias
+connection = backit@server
+
+# - The base directory of the source to backup from
+source_base = /
+
+# - The base directory of the destination to backup to
+target_base = /archives/
+
+# - The filter rules file
+filter = rsync.rules
+
+# - The log file for debugging
+log_file = rsync.log
+
+# The Backblaze B2 settings
+[backblaze]
+
+# - The account credentials
+account_id = B2ACCOUNTID
+account_key = 1234567890
+
+# - The bucket to upload to
+bucket = MyBucket
+
+# - A colin-separated list of specific folders to make separate archives of
+separate_folders = false
