@@ -2,6 +2,7 @@
 import time
 import os
 import subprocess
+from glob import glob
 from shared import config
 
 filter = config.get( 'rsync', 'filter' )
@@ -12,9 +13,7 @@ target_base = os.path.realpath( config.get( 'rsync', 'target_base' ) )
 
 timestamp = time.strftime( '%Y.%m.%d_%H.%M.%S' )
 backup_directory = target_base + '/' + timestamp
-linkref_directory = target_base + '/' + current
-
-os.makedirs( backup_directory )
+linkref_directory = target_base + '/latest'
 
 command = [
 	'rsync',
@@ -25,14 +24,11 @@ command = [
 	'--log-file', log_file,
 ]
 
-if ! os.exists( linkref_directory )
-	latest_directory = sorted( glob( target_base + '/*_*' ), reverse = True )[0]
-	os.symlink( latest_directory, linkref_directory )
-
+if os.path.exists( linkref_directory ) :
 	command = command + [
 		'--delete',
 		'--delete-excluded',
-		'--link-dest', backup_directory + '/current'
+		'--link-dest', linkref_directory
 	]
 
 command = command + [
@@ -40,4 +36,7 @@ command = command + [
 	backup_directory
 ]
 
+os.makedirs( backup_directory )
 subprocess.call( command )
+
+os.symlink( backup_directory, linkref_directory )
