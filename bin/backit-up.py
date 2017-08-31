@@ -16,7 +16,7 @@ backup_directory = target_base + '/' + timestamp
 linkref_directory = target_base + '/latest'
 
 command = [
-	'rsync',
+	'/usr/bin/rsync',
 	'-vvhrtplHP',
 	'-e', 'ssh',
 	'--rsync-path', 'sudo rsync',
