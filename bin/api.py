@@ -90,6 +90,7 @@ class B2 :
 			# Save to cache
 			with open( cache, 'w' ) as output:
 				json.dump( result, output )
+				output.close()
 
 		return result[ 'fileId' ]
 
@@ -153,6 +154,7 @@ class B2 :
 			# Save to cache
 			with open( cache, 'w' ) as output:
 				json.dump( result, output )
+				output.close()
 
 		return result
 
@@ -220,6 +222,7 @@ class B2 :
 			# Save to cache
 			with open( cache, 'w' ) as output:
 				json.dump( job, output )
+				output.close()
 
 		fh.close()
 
