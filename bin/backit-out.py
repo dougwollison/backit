@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 import tarfile
+import shutil
 from glob import glob
 from api import B2
 from shared import config
@@ -66,4 +67,4 @@ if folders :
 else :
 	make_archive( archive_dir )
 
-os.rmdir( tarballs_dir )
+shutil.rmtree( tarballs_dir )
