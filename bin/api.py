@@ -61,17 +61,27 @@ class B2 :
 	def start_large_file( self, file, bucket, savename ) :
 		"""Submit a request for a large file upload, return the file ID to use"""
 
-		result = self.request(
-			'%s/b2api/v1/b2_start_large_file' % self.url,
-			json.dumps( {
-				'fileName': savename,
-				'contentType': 'b2/x-auto',
-				'bucketId': bucket,
-			} ),
-			{
-				'Authorization': self.token
-			}
-		)
+		cache = '/tmp/b2-fileid-' + hashlib.sha1( savename ).hexdigest()
+
+		if os.path.isfile( cache ) :
+			input = open( cache );
+			result = json.load( input )
+			input.close()
+		else :
+			result = self.request(
+				'%s/b2api/v1/b2_start_large_file' % self.url,
+				json.dumps( {
+					'fileName': savename,
+					'contentType': 'b2/x-auto',
+					'bucketId': bucket,
+				} ),
+				{
+					'Authorization': self.token
+				}
+			)
+
+			with open( cache, 'w' ) as output:
+				json.dump( result, output )
 
 		return result[ 'fileId' ]
 
@@ -107,15 +117,29 @@ class B2 :
 	def get_upload_part_url( self, file_id ) :
 		"""Get the URL to use for uploading a file part to the bucket"""
 
-		result = self.request(
-			'%s/b2api/v1/b2_get_upload_part_url' % self.url,
-			json.dumps( {
-				'fileId': file_id,
-			} ),
-			{
-				'Authorization': self.token
-			}
-		)
+		cache = '/tmp/b2-job-' + file_id
+
+		if os.path.isfile( cache ) :
+			input = open( cache );
+			result = json.load( input )
+			input.close()
+		else :
+			result = self.request(
+				'%s/b2api/v1/b2_get_upload_part_url' % self.url,
+				json.dumps( {
+					'fileId': file_id,
+				} ),
+				{
+					'Authorization': self.token
+				}
+			)
+
+			result['bytes_sent'] = 0
+			result['part_number'] = 1
+			result['hash_array'] = []
+
+			with open( cache, 'w' ) as output:
+				json.dump( result, output )
 
 		return result
 
@@ -146,26 +170,22 @@ class B2 :
 		file_id = self.start_large_file( file, bucket, savename )
 		job = self.get_upload_part_url( file_id )
 
+		cache = '/tmp/b2-job-' + file_id
+
 		file_size = os.stat( file ).st_size
-
-		bytes_sent = 0
-		part_number = 1
 		part_size = self.part_size
-
-		hash_array = []
 
 		fh = open( file, 'rb' )
 
-		while ( bytes_sent < file_size ) :
-			if ( file_size - bytes_sent < self.part_size ) :
-				part_size = file_size - bytes_sent
+		while ( job['bytes_sent'] < file_size ) :
+			if ( file_size - job['bytes_sent'] < self.part_size ) :
+				part_size = file_size - job['bytes_sent']
 
-			fh.seek( bytes_sent )
+			fh.seek( job['bytes_sent'] )
 			part_data = fh.read( part_size )
-
 			part_hash = hashlib.sha1( part_data ).hexdigest()
 
-			print part_number, part_size
+			print job['part_number'], part_size
 
 			self.request(
 				job[ 'uploadUrl' ],
@@ -174,16 +194,21 @@ class B2 :
 					'Authorization': job[ 'authorizationToken' ],
 					'Content-Length': part_size,
 					'X-Bz-Content-Sha1': part_hash,
-					'X-BZ-Part-Number': part_number,
+					'X-BZ-Part-Number': job['part_number'],
 				}
 			)
 
-			hash_array.append( part_hash )
+			job['hash_array'].append( part_hash )
+			job['bytes_sent'] += part_size
+			job['part_number'] += 1
 
-			bytes_sent += part_size
-			part_number += 1
+			with open( cache, 'w' ) as output:
+				json.dump( job, output )
 
-		self.finish_large_file( file_id, hash_array )
+		self.finish_large_file( file_id, job['hash_array'], savename )
+
+		os.remove( '/tmp/b2-fileid-' + hashlib.sha1( savename ).hexdigest() )
+		os.remove( '/tmp/b2-job-' + file_id )
 
 	def upload( self, file, bucket, savename ) :
 		"""Determin the bucket ID, savename, and what upload method to use"""
