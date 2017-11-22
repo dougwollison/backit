@@ -29,27 +29,50 @@ mkdir( tarballs_dir )
 def make_archive( folder, parent = '' ) :
 	"""Create a gzipped tarball of the folder and upload it to B2"""
 
-	print 'Archiving ' + folder + '...'
-
 	basename = os.path.basename( folder );
 	b2_filename = os.path.basename( parent ) + '/' + basename + '.tgz'
 	tar_file = tarballs_dir + '/' + b2_filename
 	tar_dir = os.path.dirname( tar_file )
 
+	# These files will flag the status of the file
+	ready_file = '/tmp/backit-ready-' + basename
+	done_file = '/tmp/backit-done-' + basename
+
+	# If straight up done, skip
+	if os.path.isfile( done_file ) :
+		print 'Skipping ' + folder
+		return
+
 	mkdir( tar_dir )
 
-	tar = tarfile.open( tar_file, 'w:gz' )
-	tar.add( folder, arcname = basename )
-	tar.close()
+	# Create the archive if not yet ready
+	if not os.path.isfile( ready_file ) :
+		print 'Archiving ' + folder + '...'
 
-	print 'Done. Uploading ' + tar_file + '...'
+		tar = tarfile.open( tar_file, 'w:gz' )
+		tar.add( folder, arcname = basename )
+		tar.close()
 
+		# Flag as ready
+		open( ready_file, 'a' ).close()
+
+		print 'Done.'
+
+	print 'Uploading ' + tar_file + '...'
+
+	# Upload to B2
 	api.upload( tar_file, bucket, b2_filename )
 
-	print 'Done. cleaning up...'
+	print 'Done.'
 
+	print 'Cleaning up...'
+
+	# Remove the tar file and ready flag
 	os.remove( tar_file )
-	os.rmdir( tar_dir )
+	os.remove( ready_file )
+
+	# Flag as done
+	open( done_file, 'a' ).close()
 
 	print 'Done.'
 
