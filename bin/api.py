@@ -202,7 +202,7 @@ class B2 :
 		if not savename :
 			savename = os.path.basename( file )
 		else :
-			savename = bucket_path + '/' + savename.replace( '//', '/' ).strip( '/' )
+			savename = ( bucket_path + '/' + savename ).replace( '//', '/' ).strip( '/' )
 
 		if file_size > self.part_size :
 			self.upload_large_file( file, bucket_id, savename )
