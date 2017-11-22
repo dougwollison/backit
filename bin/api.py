@@ -221,6 +221,8 @@ class B2 :
 			with open( cache, 'w' ) as output:
 				json.dump( job, output )
 
+		fh.close()
+
 		self.finish_large_file( file_id, job['hash_array'], savename )
 
 		# Delete cache files
