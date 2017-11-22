@@ -18,9 +18,11 @@ class B2 :
 	def request( self, url, data, headers ) :
 		"""Perform the actual API request and return the result"""
 
+		# Create and send the request
 		request = urllib2.Request( url.encode( 'utf-8' ), data, headers )
-
 		response = urllib2.urlopen( request )
+
+		# Parse the result
 		result = json.loads( response.read() )
 		response.close()
 
@@ -37,6 +39,7 @@ class B2 :
 			}
 		)
 
+		# Store the credentials and settings
 		self.token = data[ 'authorizationToken' ]
 		self.url = data[ 'apiUrl' ]
 		self.part_size = data[ 'recommendedPartSize' ]
@@ -54,6 +57,7 @@ class B2 :
 			}
 		)[ 'buckets' ]
 
+		# Store the listing of bucket IDs
 		self.buckets = {}
 		for entry in result :
 			self.buckets[ entry[ 'bucketName' ] ] = entry[ 'bucketId' ]
@@ -63,11 +67,14 @@ class B2 :
 
 		cache = '/tmp/b2-fileid-' + hashlib.sha1( savename ).hexdigest()
 
+		# Check if file was started
 		if os.path.isfile( cache ) :
+			# Pull from cache
 			input = open( cache );
 			result = json.load( input )
 			input.close()
 		else :
+			# Request a fresh job
 			result = self.request(
 				'%s/b2api/v1/b2_start_large_file' % self.url,
 				json.dumps( {
@@ -80,6 +87,7 @@ class B2 :
 				}
 			)
 
+			# Save to cache
 			with open( cache, 'w' ) as output:
 				json.dump( result, output )
 
@@ -119,11 +127,14 @@ class B2 :
 
 		cache = '/tmp/b2-job-' + file_id
 
+		# Check if the upload was started
 		if os.path.isfile( cache ) :
+			# Pull from cache
 			input = open( cache );
 			result = json.load( input )
 			input.close()
 		else :
+			# Request a fresh upload
 			result = self.request(
 				'%s/b2api/v1/b2_get_upload_part_url' % self.url,
 				json.dumps( {
@@ -134,10 +145,12 @@ class B2 :
 				}
 			)
 
+			# Default values for progress tracking
 			result['bytes_sent'] = 0
 			result['part_number'] = 1
 			result['hash_array'] = []
 
+			# Save to cache
 			with open( cache, 'w' ) as output:
 				json.dump( result, output )
 
@@ -167,6 +180,7 @@ class B2 :
 	def upload_large_file( self, file, bucket, savename ) :
 		"""Perform a large file upload"""
 
+		# Start the file and upload job
 		file_id = self.start_large_file( file, bucket, savename )
 		job = self.get_upload_part_url( file_id )
 
@@ -198,20 +212,23 @@ class B2 :
 				}
 			)
 
+			# Update the progress
 			job['hash_array'].append( part_hash )
 			job['bytes_sent'] += part_size
 			job['part_number'] += 1
 
+			# Save to cache
 			with open( cache, 'w' ) as output:
 				json.dump( job, output )
 
 		self.finish_large_file( file_id, job['hash_array'], savename )
 
+		# Delete cache files
 		os.remove( '/tmp/b2-fileid-' + hashlib.sha1( savename ).hexdigest() )
 		os.remove( '/tmp/b2-job-' + file_id )
 
 	def upload( self, file, bucket, savename ) :
-		"""Determin the bucket ID, savename, and what upload method to use"""
+		"""Determine the bucket ID, savename, and what upload method to use"""
 
 		file = os.path.realpath( file )
 		file_size = os.stat( file ).st_size
