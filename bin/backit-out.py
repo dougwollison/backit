@@ -61,7 +61,7 @@ if folders :
 	for folder in folders :
 		folder = archive_dir + folder
 
-		for dir in glob( folder ) :
+		for dir in sorted( glob( folder ) ) :
 			make_archive( dir, archive_dir )
 
 else :
