@@ -26,5 +26,8 @@ account_key = 1234567890
 # - The bucket to upload to
 bucket = MyBucket
 
+# - The directory to store tarballs in
+tarballs_dir = /tmp/backit
+
 # - A colin-separated list of specific folders to make separate archives of
 separate_folders = false

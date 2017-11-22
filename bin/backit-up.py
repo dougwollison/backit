@@ -37,6 +37,7 @@ command = command + [
 ]
 
 os.makedirs( backup_directory )
+
 subprocess.call( command )
 
 if os.path.exists( linkref_directory ) :
