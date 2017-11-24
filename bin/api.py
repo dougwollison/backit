@@ -226,7 +226,7 @@ class B2 :
 
 		fh.close()
 
-		self.finish_large_file( file_id, job['hash_array'], savename )
+		self.finish_large_file( file_id, job['hash_array'] )
 
 		# Delete cache files
 		os.remove( '/tmp/b2-fileid-' + hashlib.sha1( savename ).hexdigest() )
