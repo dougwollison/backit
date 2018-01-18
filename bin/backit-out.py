@@ -2,19 +2,21 @@
 import os
 import tarfile
 import shutil
+import hashlib
 from glob import glob
 from api import B2
 from shared import config
 
 backup_dir = os.path.realpath( config.get( 'rsync', 'target_base' ) )
 tarballs_dir = os.path.realpath( config.get( 'backblaze', 'tarballs_dir' ) )
+part_size = int( config.get( 'backblaze', 'part_size' ) )
 account_id = config.get( 'backblaze', 'account_id' )
 account_key = config.get( 'backblaze', 'account_key' )
 bucket = config.get( 'backblaze', 'bucket' )
 
 folders = config.get( 'backblaze', 'separate_folders' )
 
-api = B2( account_id, account_key )
+api = B2( account_id, account_key, part_size )
 
 def mkdir( dir ) :
 	"""Shorthand for creating a directory that doesn't exist yet"""
