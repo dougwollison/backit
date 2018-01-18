@@ -37,8 +37,9 @@ def make_archive( folder, parent = '' ) :
 	tar_dir = os.path.dirname( tar_file )
 
 	# These files will flag the status of the file
-	ready_file = '/tmp/backit-ready-' + basename
-	done_file = '/tmp/backit-done-' + basename
+	hash = hashlib.md5( tar_file ).hexdigest()
+	ready_file = '/tmp/backit-ready-' + hash
+	done_file = '/tmp/backit-done-' + hash
 
 	# If straight up done, skip
 	if os.path.isfile( done_file ) :
