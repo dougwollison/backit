@@ -36,13 +36,13 @@ class B2 :
 	def pause( self, message, action = 'Retrying', seconds = 10 ) :
 		"""Log a pause in the progress and wait"""
 
-		self.log( '%s. %s in %d seconds...', message, action, seconds )
+		self.log( '%s. %s in %d seconds...' % ( message, action, seconds ) )
 		time.sleep( seconds )
 
 	def fail( self, message ) :
 		"""Log the final message and abort the script"""
 
-		self.log( '%s. Aborting...', message )
+		self.log( '%s. Aborting...' % message )
 
 		self.progress_log.close()
 		sys.exit()
