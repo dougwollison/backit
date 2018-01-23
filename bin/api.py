@@ -9,6 +9,9 @@ import json
 import urllib2
 import hashlib
 
+def is_reset_error( e ) :
+	return isinstance( e.reason, IOError ) and e.reason.errno == 104
+
 class B2 :
 	def __init__( self, id, key, part_size ) :
 		"""Initialize and authorize"""
@@ -87,12 +90,13 @@ class B2 :
 				raise
 
 		except urllib2.URLError as e :
-			if e.code == 104 :
+			if is_reset_error( e ) :
 				self.pause( '--- Connection error' )
 
 				return self.try_request( url, data, headers );
 
-			self.fail( 'Error connecting to B2: ' + str( e ) )
+			else :
+				self.fail( 'Error connecting to B2: ' + str( e ) )
 
 	def authorize( self ) :
 		"""Authorize the account, store the token, url, and part size"""
@@ -111,12 +115,13 @@ class B2 :
 			self.fail( 'Error authorizing account: ' + str( e ) )
 
 		except urllib2.URLError as e :
-			if e.code == 104 :
-				self.pause( '--- Connection error' )
+			if is_reset_error( e ) :
+				self.pause( '--- Connection reset' )
 
 				self.authorize()
 
-			self.fail( 'Error connecting to B2: ' + str( e ) )
+			else :
+				self.fail( 'Error connecting to B2: ' + str( e ) )
 
 		# Store the credentials and settings
 		self.token = data[ 'authorizationToken' ]
@@ -245,12 +250,13 @@ class B2 :
 				raise
 
 		except urllib2.URLError as e :
-			if e.code == 104 :
-				self.pause( '--- Connection error', 'Retrying', 10 )
+			if is_reset_error( e ) :
+				self.pause( '--- Connection reset' )
 
 				self.try_upload_file( job, data, savename, hash )
 
-			self.fail( 'Error connecting to B2: ' + str( e ) )
+			else :
+				self.fail( 'Error connecting to B2: ' + str( e ) )
 
 	def upload_file( self, file, bucket, savename ) :
 		"""Perform a standard file upload"""
@@ -331,18 +337,19 @@ class B2 :
 				job[ 'uploadUrl' ] = fixed[ 'uploadUrl' ]
 				job[ 'authorizationToken' ] = fixed[ 'authorizationToken' ]
 
-				self.try_upload_large_file( job, data, size, hash )
+				self.try_upload_file_part( job, data, size, hash )
 
 			else :
 				raise
 
 		except urllib2.URLError as e :
-			if e.code == 104 :
-				self.pause( '--- Connection error' )
+			if is_reset_error( e ) :
+				self.pause( '--- Connection reset' )
 
-				self.try_upload_large_file( job, data, size, hash )
+				self.try_upload_file_part( job, data, size, hash )
 
-			self.fail( 'Error connecting to B2: ' + str( e ) )
+			else :
+				self.fail( 'Error connecting to B2: ' + str( e ) )
 
 	def upload_large_file( self, file, bucket, savename ) :
 		"""Perform a large file upload"""
