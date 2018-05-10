@@ -5,7 +5,7 @@ import shutil
 import hashlib
 from glob import glob
 from api import B2
-from shared import config
+from shared import config, project
 
 backup_dir = os.path.realpath( config.get( 'rsync', 'target_base' ) )
 tarballs_dir = os.path.realpath( config.get( 'backblaze', 'tarballs_dir' ) )
@@ -15,6 +15,8 @@ account_key = config.get( 'backblaze', 'account_key' )
 bucket = config.get( 'backblaze', 'bucket' )
 
 folders = config.get( 'backblaze', 'separate_folders' )
+
+flag_file = '/tmp/backit-%s-' % project
 
 api = B2( account_id, account_key, part_size )
 
@@ -38,8 +40,8 @@ def make_archive( folder, parent = '' ) :
 
 	# These files will flag the status of the file
 	hash = hashlib.md5( tar_file ).hexdigest()
-	ready_file = '/tmp/backit-ready-' + hash
-	done_file = '/tmp/backit-done-' + hash
+	ready_file = flag_file + hash + '.ready';
+	done_file = flag_file + hash + '.done';
 
 	# If straight up done, skip
 	if os.path.isfile( done_file ) :
@@ -79,7 +81,13 @@ def make_archive( folder, parent = '' ) :
 
 	print 'Done.'
 
+# Get the earliest backup
 archive_dir = sorted( glob( backup_dir + '/*' ) )[0]
+
+# Flag
+hash = hashlib.md5( archive_dir ).hexdigest()
+working_file = '/tmp/backit-%s-%s.working' % ( project, hash );
+open( working_file, 'a' ).close()
 
 if folders :
 	folders = folders.split( ':' )
@@ -94,3 +102,8 @@ else :
 	make_archive( archive_dir )
 
 shutil.rmtree( tarballs_dir )
+
+for done_file in glob( '/tmp/backit-%s-*.done' % project ) :
+	os.remove( done_file )
+
+os.remove( working_file );
