@@ -33,7 +33,7 @@ class B2 :
 
 		message = " ".join( str( m ) for m in message_parts )
 
-		self.progress_log.write( message )
+		self.progress_log.write( message + "\n" )
 		print message
 
 	def pause( self, message, action = 'Retrying', seconds = 10 ) :
