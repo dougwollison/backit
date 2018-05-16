@@ -333,7 +333,7 @@ class B2 :
 				self.pause( '--- Server/Client error', 'Renewing url/token', 10 )
 
 				# Try fetching a new url/token in case they expired
-				self.get_upload_part_url( job['file_id'] )
+				fixed = self.get_upload_part_url( job['file_id'] )
 				job[ 'uploadUrl' ] = fixed[ 'uploadUrl' ]
 				job[ 'authorizationToken' ] = fixed[ 'authorizationToken' ]
 
