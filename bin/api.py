@@ -313,6 +313,8 @@ class B2 :
 		return result
 
 	def try_upload_file_part( self, job, data, size, hash ) :
+		"""Perform the actual file part upload"""
+
 		try :
 			self.request(
 				job[ 'uploadUrl' ],
