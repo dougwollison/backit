@@ -10,7 +10,7 @@ import urllib2
 import hashlib
 
 def is_reset_error( e ) :
-	return isinstance( e.reason, IOError ) and e.reason.errno == 104
+	return isinstance( e.reason, IOError ) and ( e.reason.errno == 104 or e.reason.errno == 111 )
 
 class B2 :
 	def __init__( self, id, key, part_size ) :
@@ -116,7 +116,7 @@ class B2 :
 
 		except urllib2.URLError as e :
 			if is_reset_error( e ) :
-				self.pause( '--- Connection reset' )
+				self.pause( '--- Connection reset/refused: ' + str( e ) )
 
 				self.authorize()
 
@@ -251,7 +251,7 @@ class B2 :
 
 		except urllib2.URLError as e :
 			if is_reset_error( e ) :
-				self.pause( '--- Connection reset' )
+				self.pause( '--- Connection reset/refused: ' + str( e ) )
 
 				self.try_upload_file( job, data, savename, hash )
 
@@ -344,7 +344,7 @@ class B2 :
 
 		except urllib2.URLError as e :
 			if is_reset_error( e ) :
-				self.pause( '--- Connection reset' )
+				self.pause( '--- Connection reset/refused: ' + str( e ) )
 
 				self.try_upload_file_part( job, data, size, hash )
 
