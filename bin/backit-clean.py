@@ -18,12 +18,12 @@ for x in range( count ) :
 
 	# Check if it's flagged as being worked on
 	hash = hashlib.md5( archive_dir ).hexdigest()
-	working_file = '/tmp/backit-%s-%s.working' % ( project, hash );
+	working_file = '/tmp/backit-%s-%s.working' % ( project, hash )
 
-	# If not being worked on, delete
-	if not os.path.isfile( working_file ) :
-		print 'Deleting ' + archive_dir + '...'
+	if os.path.isfile( working_file ) :
+		print 'Unable to delete ' + archive_dir + ' (archive in progress)'
+		sys.exit( 0 )
 
-		shutil.rmtree( archive_dir )
-
-		print 'Done.'
+	print 'Deleting ' + archive_dir + '...'
+	shutil.rmtree( archive_dir )
+	print 'Done.'
