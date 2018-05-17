@@ -117,7 +117,7 @@ class B2 :
 
 		except urllib2.URLError as e :
 			if is_reset_error( e ) :
-				self.pause( '--- Connection reset/refused: ' + str( e ) )
+				self.pause( '--- Connection reset/refused: ' + str( e ), 'Retrying', 5 )
 
 				self.authorize()
 
@@ -252,7 +252,7 @@ class B2 :
 
 		except urllib2.URLError as e :
 			if is_reset_error( e ) :
-				self.pause( '--- Connection reset/refused: ' + str( e ) )
+				self.pause( '--- Connection reset/refused: ' + str( e ), 'Retrying', 5 )
 
 				self.try_upload_file( job, data, savename, hash )
 
@@ -347,7 +347,7 @@ class B2 :
 
 		except urllib2.URLError as e :
 			if is_reset_error( e ) :
-				self.pause( '--- Connection reset/refused: ' + str( e ) )
+				self.pause( '--- Connection reset/refused: ' + str( e ), 'Retrying', 5 )
 
 				self.try_upload_file_part( job, data, size, hash )
 
