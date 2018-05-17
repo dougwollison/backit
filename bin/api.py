@@ -2,6 +2,7 @@
 
 import os
 import sys
+import gc
 import math
 import time
 import string
@@ -385,6 +386,10 @@ class B2 :
 			# Attempt to upload the part
 			self.log( '- Uploading Part', job['part_number'], 'of', part_total, part_size )
 			self.try_upload_file_part( job, part_data, part_size, part_hash )
+
+			# Paranoid cleanup
+			del part_data
+			gc.collect()
 
 			# Update the progress
 			job['hash_array'].append( part_hash )
