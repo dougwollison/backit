@@ -2,6 +2,7 @@
 
 import os
 import sys
+import math
 import time
 import string
 import base64
@@ -367,6 +368,7 @@ class B2 :
 		# Get the total file size and part size to use
 		file_size = os.stat( file ).st_size
 		part_size = self.part_size
+		part_total = math.ceil( file_size / part_size )
 
 		# Open the file, begin reading chunks
 		fh = open( file, 'rb' )
@@ -381,7 +383,7 @@ class B2 :
 			part_hash = hashlib.sha1( part_data ).hexdigest()
 
 			# Attempt to upload the part
-			self.log( '- Uploading Part', job['part_number'], part_size )
+			self.log( '- Uploading Part', job['part_number'], 'of', part_total, part_size )
 			self.try_upload_file_part( job, part_data, part_size, part_hash )
 
 			# Update the progress
