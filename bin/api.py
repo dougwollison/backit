@@ -31,9 +31,10 @@ class B2 :
 	def log( self, *message_parts ) :
 		"""Log the message for the debug"""
 
+		timestamp = '[' + time.strftime( '%H:%M:%S' ) + ']'
 		message = " ".join( str( m ) for m in message_parts )
 
-		self.progress_log.write( message + "\n" )
+		self.progress_log.write( timestamp + " " + message + "\n" )
 		print message
 
 	def pause( self, message, action = 'Retrying', seconds = 10 ) :
