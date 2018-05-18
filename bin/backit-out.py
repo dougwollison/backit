@@ -1,5 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os
+import sys
+import gc
 import tarfile
 import shutil
 import hashlib
@@ -57,6 +59,10 @@ def make_archive( folder, parent = '' ) :
 		tar = tarfile.open( tar_file, 'w:gz' )
 		tar.add( folder, arcname = basename )
 		tar.close()
+
+		# Paranoid cleanup
+		del tar
+		gc.collect()
 
 		# Flag as ready
 		open( ready_file, 'a' ).close()

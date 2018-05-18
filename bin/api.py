@@ -2,6 +2,8 @@
 
 import os
 import sys
+import gc
+import math
 import time
 import string
 import base64
@@ -10,7 +12,7 @@ import urllib2
 import hashlib
 
 def is_reset_error( e ) :
-	return isinstance( e.reason, IOError ) and e.reason.errno == 104
+	return isinstance( e.reason, IOError ) and ( e.reason.errno == 104 or e.reason.errno == 111 )
 
 class B2 :
 	def __init__( self, id, key, part_size ) :
@@ -31,9 +33,10 @@ class B2 :
 	def log( self, *message_parts ) :
 		"""Log the message for the debug"""
 
+		timestamp = '[' + time.strftime( '%H:%M:%S' ) + ']'
 		message = " ".join( str( m ) for m in message_parts )
 
-		self.progress_log.write( message + "\n" )
+		self.progress_log.write( timestamp + " " + message + "\n" )
 		print message
 
 	def pause( self, message, action = 'Retrying', seconds = 10 ) :
@@ -116,7 +119,7 @@ class B2 :
 
 		except urllib2.URLError as e :
 			if is_reset_error( e ) :
-				self.pause( '--- Connection reset' )
+				self.pause( '--- Connection reset/refused: ' + str( e ), 'Retrying', 5 )
 
 				self.authorize()
 
@@ -251,7 +254,7 @@ class B2 :
 
 		except urllib2.URLError as e :
 			if is_reset_error( e ) :
-				self.pause( '--- Connection reset' )
+				self.pause( '--- Connection reset/refused: ' + str( e ), 'Retrying', 5 )
 
 				self.try_upload_file( job, data, savename, hash )
 
@@ -313,6 +316,8 @@ class B2 :
 		return result
 
 	def try_upload_file_part( self, job, data, size, hash ) :
+		"""Perform the actual file part upload"""
+
 		try :
 			self.request(
 				job[ 'uploadUrl' ],
@@ -333,7 +338,7 @@ class B2 :
 				self.pause( '--- Server/Client error', 'Renewing url/token', 10 )
 
 				# Try fetching a new url/token in case they expired
-				self.get_upload_part_url( job['file_id'] )
+				fixed = self.get_upload_part_url( job['file_id'] )
 				job[ 'uploadUrl' ] = fixed[ 'uploadUrl' ]
 				job[ 'authorizationToken' ] = fixed[ 'authorizationToken' ]
 
@@ -344,7 +349,7 @@ class B2 :
 
 		except urllib2.URLError as e :
 			if is_reset_error( e ) :
-				self.pause( '--- Connection reset' )
+				self.pause( '--- Connection reset/refused: ' + str( e ), 'Retrying', 5 )
 
 				self.try_upload_file_part( job, data, size, hash )
 
@@ -364,6 +369,7 @@ class B2 :
 		# Get the total file size and part size to use
 		file_size = os.stat( file ).st_size
 		part_size = self.part_size
+		part_total = math.ceil( file_size / part_size )
 
 		# Open the file, begin reading chunks
 		fh = open( file, 'rb' )
@@ -378,8 +384,12 @@ class B2 :
 			part_hash = hashlib.sha1( part_data ).hexdigest()
 
 			# Attempt to upload the part
-			self.log( '- Uploading Part', job['part_number'], part_size )
+			self.log( '- Uploading Part', job['part_number'], 'of', part_total, part_size )
 			self.try_upload_file_part( job, part_data, part_size, part_hash )
+
+			# Paranoid cleanup
+			del part_data
+			gc.collect()
 
 			# Update the progress
 			job['hash_array'].append( part_hash )
