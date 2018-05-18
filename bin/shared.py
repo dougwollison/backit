@@ -1,8 +1,8 @@
 import sys
-import ConfigParser
+from configparser import ConfigParser
 import os
 
-config = ConfigParser.ConfigParser()
+config = ConfigParser()
 
 project = 'default'
 if len( sys.argv ) > 1 :
