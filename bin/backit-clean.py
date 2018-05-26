@@ -17,7 +17,7 @@ for x in range( count ) :
 	archive_dir = sorted( glob( backup_dir + '/*' ) )[0]
 
 	# Check if it's flagged as being worked on
-	hash = hashlib.md5( archive_dir ).hexdigest()
+	hash = hashlib.md5( archive_dir.encode( 'utf-8' ) ).hexdigest()
 	working_file = '/tmp/backit-%s-%s.working' % ( project, hash )
 
 	if os.path.isfile( working_file ) :

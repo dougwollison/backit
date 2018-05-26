@@ -41,7 +41,7 @@ def make_archive( folder, parent = '' ) :
 	tar_dir = os.path.dirname( tar_file )
 
 	# These files will flag the status of the file
-	hash = hashlib.md5( tar_file ).hexdigest()
+	hash = hashlib.md5( tar_file.encode( 'utf-8' ) ).hexdigest()
 	ready_file = flag_file + hash + '.ready';
 	done_file = flag_file + hash + '.done';
 
@@ -91,7 +91,7 @@ def make_archive( folder, parent = '' ) :
 archive_dir = sorted( glob( backup_dir + '/*' ) )[0]
 
 # Flag
-hash = hashlib.md5( archive_dir ).hexdigest()
+hash = hashlib.md5( archive_dir.encode( 'utf-8' ) ).hexdigest()
 working_file = '/tmp/backit-%s-%s.working' % ( project, hash );
 open( working_file, 'a' ).close()
 

@@ -59,12 +59,15 @@ class B2 :
 
 		self.log( '--', url )
 
+		if data and not isinstance( data, bytes ) :
+			data = data.encode( 'utf-8' )
+
 		# Create and send the request
-		request = urlreq.Request( url, data.encode( 'utf-8' ), headers )
+		request = urlreq.Request( url, data, headers )
 		response = urlreq.urlopen( request )
 
 		# Parse the result
-		result = json.loads( response.read() )
+		result = json.loads( str( response.read(), 'utf-8' ) )
 		response.close()
 
 		return result
@@ -107,11 +110,12 @@ class B2 :
 
 		# Fetch the connection info needed
 		try :
+			auth = self.account_id + ':' + self.account_key
 			data = self.request(
 				'https://api.backblazeb2.com/b2api/v1/b2_authorize_account',
 				None,
 				headers = {
-					'Authorization': 'Basic ' + base64.b64encode( self.account_id + ':' + self.account_key ),
+					'Authorization': 'Basic ' + str( base64.b64encode( str.encode( auth ) ), 'utf-8' ),
 				}
 			)
 
@@ -158,7 +162,7 @@ class B2 :
 		"""Submit a request for a large file upload, return the file ID to use"""
 
 		# Generate a cache filename to use
-		cache = '/tmp/b2-fileid-' + hashlib.sha1( savename ).hexdigest()
+		cache = '/tmp/b2-fileid-' + hashlib.sha1( savename.encode( 'utf-8' ) ).hexdigest()
 
 		# Check if file was started
 		if os.path.isfile( cache ) :
@@ -272,7 +276,7 @@ class B2 :
 		job['bucket_id'] = bucket
 
 		# Load the file, compile the hash
-		fh = open( file )
+		fh = open( file, 'rb' )
 		data = fh.read()
 		hash = hashlib.sha1( data ).hexdigest()
 
@@ -287,7 +291,7 @@ class B2 :
 		# Check if the upload was started
 		if os.path.isfile( cache ) :
 			# Pull from cache
-			input = open( cache );
+			input = open( cache, 'r' )
 			result = json.load( input )
 			input.close()
 
@@ -407,7 +411,7 @@ class B2 :
 		self.finish_large_file( file_id, job['hash_array'] )
 
 		# Delete cache files
-		os.remove( '/tmp/b2-fileid-' + hashlib.sha1( savename ).hexdigest() )
+		os.remove( '/tmp/b2-fileid-' + hashlib.sha1( savename.encode( 'utf-8' ) ).hexdigest() )
 		os.remove( '/tmp/b2-job-' + file_id )
 
 	def upload( self, file, bucket, savename ) :
