@@ -8,8 +8,9 @@ import time
 import string
 import base64
 import json
-import urllib2
 import hashlib
+import urllib.request as urlreq
+import urllib.error as urlerr
 
 def is_reset_error( e ) :
 	return isinstance( e.reason, IOError ) and ( e.reason.errno == 104 or e.reason.errno == 111 )
@@ -59,8 +60,8 @@ class B2 :
 		self.log( '--', url )
 
 		# Create and send the request
-		request = urllib2.Request( url.encode( 'utf-8' ), data, headers )
-		response = urllib2.urlopen( request )
+		request = urlreq.Request( url, data.encode( 'utf-8' ), headers )
+		response = urlreq.urlopen( request )
 
 		# Parse the result
 		result = json.loads( response.read() )
@@ -74,7 +75,7 @@ class B2 :
 		try :
 			return self.request( url, data, headers );
 
-		except urllib2.HTTPError as e :
+		except urlerr.HTTPError as e :
 			if e.code == 429 :
 				self.fail( '--- Request limit imposed' )
 
@@ -92,7 +93,7 @@ class B2 :
 			else :
 				raise
 
-		except urllib2.URLError as e :
+		except urlerr.URLError as e :
 			if is_reset_error( e ) :
 				self.pause( '--- Connection error' )
 
@@ -114,10 +115,10 @@ class B2 :
 				}
 			)
 
-		except urllib2.HTTPError as e :
+		except urlerr.HTTPError as e :
 			self.fail( 'Error authorizing account: ' + str( e ) )
 
-		except urllib2.URLError as e :
+		except urlerr.URLError as e :
 			if is_reset_error( e ) :
 				self.pause( '--- Connection reset/refused: ' + str( e ), 'Retrying', 5 )
 
@@ -234,7 +235,7 @@ class B2 :
 				}
 			)
 
-		except urllib2.HTTPError as e :
+		except urlerr.HTTPError as e :
 			if e.code == 429 :
 				self.fail( '--- Request limit imposed' )
 
@@ -252,7 +253,7 @@ class B2 :
 			else :
 				raise
 
-		except urllib2.URLError as e :
+		except urlerr.URLError as e :
 			if is_reset_error( e ) :
 				self.pause( '--- Connection reset/refused: ' + str( e ), 'Retrying', 5 )
 
@@ -330,7 +331,7 @@ class B2 :
 				}
 			)
 
-		except urllib2.HTTPError as e :
+		except urlerr.HTTPError as e :
 			if e.code == 429 :
 				self.fail( '--- Request limit imposed' )
 
@@ -347,7 +348,7 @@ class B2 :
 			else :
 				raise
 
-		except urllib2.URLError as e :
+		except urlerr.URLError as e :
 			if is_reset_error( e ) :
 				self.pause( '--- Connection reset/refused: ' + str( e ), 'Retrying', 5 )
 
