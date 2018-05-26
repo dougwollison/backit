@@ -37,7 +37,7 @@ class B2 :
 		message = " ".join( str( m ) for m in message_parts )
 
 		self.progress_log.write( timestamp + " " + message + "\n" )
-		print message
+		print( message )
 
 	def pause( self, message, action = 'Retrying', seconds = 10 ) :
 		"""Log a pause in the progress and wait"""

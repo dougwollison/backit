@@ -21,9 +21,9 @@ for x in range( count ) :
 	working_file = '/tmp/backit-%s-%s.working' % ( project, hash )
 
 	if os.path.isfile( working_file ) :
-		print 'Unable to delete ' + archive_dir + ' (archive in progress)'
+		print( 'Unable to delete ' + archive_dir + ' (archive in progress)' )
 		sys.exit( 0 )
 
-	print 'Deleting ' + archive_dir + '...'
+	print( 'Deleting ' + archive_dir + '...' )
 	shutil.rmtree( archive_dir )
-	print 'Done.'
+	print( 'Done.' )

@@ -47,14 +47,14 @@ def make_archive( folder, parent = '' ) :
 
 	# If straight up done, skip
 	if os.path.isfile( done_file ) :
-		print 'Skipping ' + folder
+		print( 'Skipping ' + folder )
 		return
 
 	mkdir( tar_dir )
 
 	# Create the archive if not yet ready
 	if not os.path.isfile( ready_file ) :
-		print 'Archiving ' + folder + '...'
+		print( 'Archiving ' + folder + '...' )
 
 		tar = tarfile.open( tar_file, 'w:gz' )
 		tar.add( folder, arcname = basename )
@@ -67,16 +67,16 @@ def make_archive( folder, parent = '' ) :
 		# Flag as ready
 		open( ready_file, 'a' ).close()
 
-		print 'Done.'
+		print( 'Done.' )
 
-	print 'Uploading ' + tar_file + '...'
+	print( 'Uploading ' + tar_file + '...' )
 
 	# Upload to B2
 	api.upload( tar_file, bucket, b2_filename )
 
-	print 'Done.'
+	print( 'Done.' )
 
-	print 'Cleaning up...'
+	print( 'Cleaning up...' )
 
 	# Remove the tar file and ready flag
 	os.remove( tar_file )
@@ -85,7 +85,7 @@ def make_archive( folder, parent = '' ) :
 	# Flag as done
 	open( done_file, 'a' ).close()
 
-	print 'Done.'
+	print( 'Done.' )
 
 # Get the earliest backup
 archive_dir = sorted( glob( backup_dir + '/*' ) )[0]
