@@ -34,7 +34,7 @@ if count > keep :
 			sys.exit( 0 )
 
 		print( 'Deleting ' + archive_dir + '...' )
-		#shutil.rmtree( archive_dir )
+		shutil.rmtree( archive_dir )
 		print( 'Done.' )
 
 		count -= 1
