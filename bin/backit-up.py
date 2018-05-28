@@ -43,6 +43,7 @@ subprocess.call( command )
 if os.path.exists( linkref_directory ) :
 	os.unlink( linkref_directory )
 
+start = os.getcwd()
 os.chdir( target_base )
 os.symlink( os.path.basename( backup_directory ), 'latest' )
-os.chdir( owd )
+os.chdir( start )
