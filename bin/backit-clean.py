@@ -6,24 +6,38 @@ import hashlib
 from glob import glob
 from shared import config, project
 
-count = 1
+keep = int( config.get( 'storage', 'keep' ) )
 if len( sys.argv ) > 2 :
-	count = int( sys.argv[2] )
+	keep = int( sys.argv[2] )
 
-for x in range( count ) :
-	backup_dir = os.path.realpath( config.get( 'rsync', 'target_base' ) )
+backup_dir = os.path.realpath( config.get( 'rsync', 'target_base' ) )
 
-	# Get the earliest backup
-	archive_dir = sorted( glob( backup_dir + '/*' ) )[0]
+archives = sorted( glob( backup_dir + '/20*_*' ) )
+count = len( archives )
 
-	# Check if it's flagged as being worked on
-	hash = hashlib.md5( archive_dir.encode( 'utf-8' ) ).hexdigest()
-	working_file = '/tmp/backit-%s-%s.working' % ( project, hash )
+print( 'Found %d archive(s).' % count );
 
-	if os.path.isfile( working_file ) :
-		print( 'Unable to delete ' + archive_dir + ' (archive in progress)' )
-		sys.exit( 0 )
+if count > keep :
+	print( 'Need to delete earliest %d.' % ( count - keep ) )
 
-	print( 'Deleting ' + archive_dir + '...' )
-	shutil.rmtree( archive_dir )
-	print( 'Done.' )
+	n = 0
+	while count > keep :
+		# Get the earliest backup
+		archive_dir = archives[ n ]
+
+		# Check if it's flagged as being worked on
+		hash = hashlib.md5( archive_dir.encode( 'utf-8' ) ).hexdigest()
+		working_file = '/tmp/backit-%s-%s.working' % ( project, hash )
+
+		if os.path.isfile( working_file ) :
+			print( 'Unable to delete ' + archive_dir + ' (archive in progress)' )
+			sys.exit( 0 )
+
+		print( 'Deleting ' + archive_dir + '...' )
+		#shutil.rmtree( archive_dir )
+		print( 'Done.' )
+
+		count -= 1
+		n += 1
+else:
+	print( 'No cleanup necessary.' )
