@@ -31,6 +31,8 @@ if not os.path.isdir( archive_dir ) :
 	print( 'Archive not found: ' + archive_dir )
 	sys.exit()
 
+print( 'Exporting %s to B2...' % archive_dir )
+
 api = B2( account_id, account_key, part_size )
 
 def mkdir( dir ) :
