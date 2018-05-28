@@ -9,8 +9,8 @@ from glob import glob
 from api import B2
 from shared import config, project
 
+tarballs_dir = os.path.realpath( config.get( 'storage', 'tarballs_dir' ) )
 backup_dir = os.path.realpath( config.get( 'rsync', 'target_base' ) )
-tarballs_dir = os.path.realpath( config.get( 'backblaze', 'tarballs_dir' ) )
 part_size = int( config.get( 'backblaze', 'part_size' ) )
 account_id = config.get( 'backblaze', 'account_id' )
 account_key = config.get( 'backblaze', 'account_key' )
@@ -20,6 +20,16 @@ prefix = config.get( 'backblaze', 'parent_folder', fallback='' )
 folders = config.get( 'backblaze', 'separate_folders', fallback=False )
 
 flag_file = '/tmp/backit-%s-' % project
+
+# Get the specified or otherwise latest backup
+if len( sys.argv ) > 2 :
+	archive_dir = backup_dir + '/' + sys.argv[2]
+else :
+	archive_dir = sorted( glob( backup_dir + '/20*_*' ), reverse=True )[0]
+
+if not os.path.isdir( archive_dir ) :
+	print( 'Archive not found: ' + archive_dir )
+	sys.exit()
 
 api = B2( account_id, account_key, part_size )
 
@@ -87,9 +97,6 @@ def make_archive( folder, parent = '' ) :
 	open( done_file, 'a' ).close()
 
 	print( 'Done.' )
-
-# Get the earliest backup
-archive_dir = sorted( glob( backup_dir + '/*' ) )[0]
 
 # Flag
 hash = hashlib.md5( archive_dir.encode( 'utf-8' ) ).hexdigest()
