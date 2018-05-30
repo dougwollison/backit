@@ -6,7 +6,7 @@ import hashlib
 from glob import glob
 from shared import config, project, option as keep
 
-keep = int( keep ) or int( config.get( 'storage', 'keep' ) )
+keep = int( keep ) or int( config.get( 'storage', 'keep', fallback=0 ) )
 
 if keep < 1 :
 	print( 'Aborting cleanup; number of backups requested to keep is less than 1.' )

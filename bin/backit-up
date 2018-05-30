@@ -9,7 +9,7 @@ from shared import config, option as testing
 filter = config.get( 'rsync', 'filter' )
 log_file = config.get( 'rsync', 'log_file' )
 connection = config.get( 'rsync', 'connection' )
-source_base = os.path.realpath( config.get( 'rsync', 'source_base' ) )
+source_base = os.path.realpath( config.get( 'rsync', 'source_base', fallback='/' ) )
 target_base = os.path.realpath( config.get( 'rsync', 'target_base' ) )
 
 timestamp = time.strftime( '%Y.%m.%d_%H.%M.%S' )
