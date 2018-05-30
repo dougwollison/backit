@@ -55,18 +55,18 @@ def make_archive( folder, parent = '' ) :
 
 	# These files will flag the status of the file
 	hash = hashlib.md5( tar_file.encode( 'utf-8' ) ).hexdigest()
-	ready_file = flag_file + hash + '.ready';
-	done_file = flag_file + hash + '.done';
+	ready_flag = flag_file + hash + '.ready';
+	done_flag = flag_file + hash + '.done';
 
 	# If straight up done, skip
-	if os.path.isfile( done_file ) :
+	if os.path.isfile( done_flag ) :
 		print( 'Skipping ' + folder )
 		return
 
 	mkdir( tar_dir )
 
-	# Create the archive if not yet ready
-	if not os.path.isfile( ready_file ) :
+	# (Re)create the archive if not yet ready
+	if not os.path.isfile( ready_flag ) :
 		print( 'Archiving ' + folder + '...' )
 
 		tar = tarfile.open( tar_file, 'w:gz' )
@@ -78,7 +78,7 @@ def make_archive( folder, parent = '' ) :
 		gc.collect()
 
 		# Flag as ready
-		open( ready_file, 'a' ).close()
+		open( ready_flag, 'a' ).close()
 
 		print( 'Done.' )
 
@@ -93,17 +93,17 @@ def make_archive( folder, parent = '' ) :
 
 	# Remove the tar file and ready flag
 	os.remove( tar_file )
-	os.remove( ready_file )
+	os.remove( ready_flag )
 
 	# Flag as done
-	open( done_file, 'a' ).close()
+	open( done_flag, 'a' ).close()
 
 	print( 'Done.' )
 
-# Flag
+# Flag as being in the process of archiving
 hash = hashlib.md5( archive_dir.encode( 'utf-8' ) ).hexdigest()
-working_file = '/tmp/backit-%s-%s.working' % ( project, hash );
-open( working_file, 'a' ).close()
+archiving_flag = '/tmp/backit-%s-%s.archiving' % ( project, hash )
+open( archiving_flag, 'a' ).close()
 
 if separate_folders :
 	folders = separate_folders.split( ':' )
@@ -119,7 +119,7 @@ else :
 
 shutil.rmtree( tarballs_dir )
 
-for done_file in glob( '/tmp/backit-%s-*.done' % project ) :
-	os.remove( done_file )
+for done_flag in glob( '/tmp/backit-%s-*.done' % project ) :
+	os.remove( done_flag )
 
-os.remove( working_file );
+os.remove( archiving_flag )

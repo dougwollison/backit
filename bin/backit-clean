@@ -29,9 +29,9 @@ if count > keep :
 
 		# Check if it's flagged as being worked on
 		hash = hashlib.md5( archive_dir.encode( 'utf-8' ) ).hexdigest()
-		working_file = '/tmp/backit-%s-%s.working' % ( project, hash )
+		archiving_flag = '/tmp/backit-%s-%s.archiving' % ( project, hash )
 
-		if os.path.isfile( working_file ) :
+		if os.path.isfile( archiving_flag ) :
 			print( 'Unable to delete ' + archive_dir + ' (archive in progress). Aborting.' )
 			sys.exit( 0 )
 
