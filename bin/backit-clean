@@ -8,6 +8,10 @@ from shared import config, project, option as keep
 
 keep = int( keep ) or int( config.get( 'storage', 'keep' ) )
 
+if keep < 1 :
+	print( 'Aborting cleanup; number of backups requested to keep is less than 1.' )
+	sys.exit()
+
 backup_dir = os.path.realpath( config.get( 'rsync', 'target_base' ) )
 
 archives = sorted( glob( backup_dir + '/20*_*' ) )
@@ -28,7 +32,7 @@ if count > keep :
 		working_file = '/tmp/backit-%s-%s.working' % ( project, hash )
 
 		if os.path.isfile( working_file ) :
-			print( 'Unable to delete ' + archive_dir + ' (archive in progress)' )
+			print( 'Unable to delete ' + archive_dir + ' (archive in progress). Aborting.' )
 			sys.exit( 0 )
 
 		print( 'Deleting ' + archive_dir + '...' )
