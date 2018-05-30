@@ -2,20 +2,22 @@
 import sys
 import os
 import shutil
-import hashlib
 from glob import glob
-from shared import config, project, option as keep
 
-keep = int( keep ) or int( config.get( 'storage', 'keep', fallback=0 ) )
+import shared as backit
+from shared import option as keep
+import flags
+
+keep = int( keep ) if keep else int( backit.get( 'storage', 'keep', 0 ) )
 
 if keep < 1 :
 	print( 'Aborting cleanup; number of backups requested to keep is less than 1.' )
 	sys.exit()
 
-backup_dir = os.path.realpath( config.get( 'rsync', 'target_base' ) )
+backups_root = os.path.realpath( backit.get( 'rsync', 'backups_root' ) )
 
-archives = sorted( glob( backup_dir + '/20*_*' ) )
-count = len( archives )
+backups = sorted( glob( backups_root + '/20*_*' ) )
+count = len( backups )
 
 print( 'Found %d archive(s).' % count );
 
@@ -25,18 +27,16 @@ if count > keep :
 	n = 0
 	while count > keep :
 		# Get the earliest backup
-		archive_dir = archives[ n ]
+		backup_dir = archives[ n ]
 
 		# Check if it's flagged as being worked on
-		hash = hashlib.md5( archive_dir.encode( 'utf-8' ) ).hexdigest()
-		archiving_flag = '/tmp/backit-%s-%s.archiving' % ( project, hash )
-
-		if os.path.isfile( archiving_flag ) :
-			print( 'Unable to delete ' + archive_dir + ' (archive in progress). Aborting.' )
+		if flags.check( backup_dir, 'archiving' ) :
+			print( 'Unable to delete ' + backup_dir + ' (archive in progress). Aborting.' )
 			sys.exit( 0 )
 
-		print( 'Deleting ' + archive_dir + '...' )
-		shutil.rmtree( archive_dir )
+		# Recursively delete the archive, advance
+		print( 'Deleting ' + backup_dir + '...' )
+		shutil.rmtree( backup_dir )
 		print( 'Done.' )
 
 		count -= 1

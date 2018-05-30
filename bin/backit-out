@@ -4,42 +4,41 @@ import sys
 import gc
 import tarfile
 import shutil
-import hashlib
 from glob import glob
+
 from api import B2
-from shared import config, project, option as backup
+import shared as backit
+from shared import option as date
+import flags
 
-tarballs_dir = os.path.realpath( config.get( 'storage', 'tarballs_dir' ) )
-backups_dir = os.path.realpath( config.get( 'rsync', 'target_base' ) )
-part_size = int( config.get( 'backblaze', 'part_size' ) )
-account_id = config.get( 'backblaze', 'account_id' )
-account_key = config.get( 'backblaze', 'account_key' )
-bucket = config.get( 'backblaze', 'bucket' )
+tarballs_dir = os.path.realpath( backit.get( 'storage', 'tarballs_dir' ) )
+backups_root = os.path.realpath( backit.get( 'rsync', 'backups_root' ) )
+part_size = int( backit.get( 'backblaze', 'part_size' ) )
+account_id = backit.get( 'backblaze', 'account_id' )
+account_key = backit.get( 'backblaze', 'account_key' )
+bucket = backit.get( 'backblaze', 'bucket' )
 
-parent_folder = config.get( 'backblaze', 'parent_folder', fallback='' )
-separate_folders = config.get( 'backblaze', 'separate_folders', fallback=False )
-
-flag_file = '/tmp/backit-%s-' % project
+parent_folder = backit.get( 'backblaze', 'parent_folder', '' )
+separate_folders = backit.get( 'backblaze', 'separate_folders', False )
 
 # Get the specified or otherwise latest backup
-if backup :
-	archive_dir = os.path.joint( backups_dir, backup )
+if date :
+	print( backups_root, date )
+	backup_dir = os.path.join( backups_root, date )
 else :
-	archive_dir = sorted( glob( backups_dir + '/20*_*' ), reverse=True )[0]
+	backup_dir = sorted( glob( backups_root + '/20*_*' ), reverse=True )[0]
 
 # Ensure the archive exists
-if not os.path.isdir( archive_dir ) :
-	print( 'Archive not found: ' + archive_dir )
+if not os.path.isdir( backup_dir ) :
+	print( 'Archive not found: ' + backup_dir )
 	sys.exit()
 
-# Check if the backup is somehow still downloading
-hash = hashlib.md5( archive_dir.encode( 'utf-8' ) ).hexdigest()
-downloading_flag = '/tmp/backit-%s-%s.downloading' % ( project, hash )
-if os.path.isfile( downloading_flag ) :
-	print( 'Unable to archive ' + archive_dir + ' (download in progress).' )
+# Check if the backup_dir is somehow still downloading
+if flags.check( backup_dir, 'downloading' ) :
+	print( 'Unable to archive ' + backup_dir + ' (download in progress).' )
 	sys.exit( 0 )
 
-print( 'Exporting %s to B2...' % archive_dir )
+print( 'Exporting %s to B2...' % backup_dir )
 
 api = B2( account_id, account_key, part_size )
 
@@ -61,20 +60,15 @@ def make_archive( folder, parent = '' ) :
 	tar_file = os.path.join( tarballs_dir, b2_filename.lstrip( '/' ) )
 	tar_dir = os.path.dirname( tar_file )
 
-	# These files will flag the status of the file
-	hash = hashlib.md5( tar_file.encode( 'utf-8' ) ).hexdigest()
-	ready_flag = flag_file + hash + '.ready';
-	done_flag = flag_file + hash + '.done';
-
 	# If straight up done, skip
-	if os.path.isfile( done_flag ) :
+	if flags.check( tar_file, 'done' ) :
 		print( 'Skipping ' + folder )
 		return
 
 	mkdir( tar_dir )
 
 	# (Re)create the archive if not yet ready
-	if not os.path.isfile( ready_flag ) :
+	if not flags.check( tar_file, 'ready' ) :
 		print( 'Archiving ' + folder + '...' )
 
 		tar = tarfile.open( tar_file, 'w:gz' )
@@ -86,7 +80,7 @@ def make_archive( folder, parent = '' ) :
 		gc.collect()
 
 		# Flag as ready
-		open( ready_flag, 'a' ).close()
+		flags.write( tar_file, 'ready' )
 
 		print( 'Done.' )
 
@@ -99,35 +93,34 @@ def make_archive( folder, parent = '' ) :
 
 	print( 'Cleaning up...' )
 
-	# Remove the tar file and ready flag
+	# Remove the tar file
 	os.remove( tar_file )
-	os.remove( ready_flag )
 
 	# Flag as done
-	open( done_flag, 'a' ).close()
+	flags.remove( tar_file, 'done' )
 
 	print( 'Done.' )
 
 # Flag as being in the process of archiving
-hash = hashlib.md5( archive_dir.encode( 'utf-8' ) ).hexdigest()
-archiving_flag = '/tmp/backit-%s-%s.archiving' % ( project, hash )
-open( archiving_flag, 'a' ).close()
+flags.write( backup_dir, 'archiving' )
 
 if separate_folders :
 	folders = separate_folders.split( ':' )
 
+	print( folders )
+
 	for folder in folders :
-		folder = os.path.join( archive_dir, folder.lstrip( '/' ) ) # lstrip otherwise join replaces backup with folder
+		folder = os.path.join( backup_dir, folder.lstrip( '/' ) ) # lstrip otherwise join replaces backup_dir with folder
 
 		for dir in sorted( glob( folder ) ) :
-			make_archive( dir, archive_dir )
+			make_archive( dir, backup_dir )
 
 else :
-	make_archive( archive_dir )
+	make_archive( backup_dir )
 
 shutil.rmtree( tarballs_dir )
 
-for done_flag in glob( '/tmp/backit-%s-*.done' % project ) :
+for done_flag in glob( '/tmp/backit-%s-*.done' % backit.project ) :
 	os.remove( done_flag )
 
-os.remove( archiving_flag )
+flags.remove( backup_dir, 'archiving' )

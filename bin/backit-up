@@ -3,17 +3,20 @@ import time
 import os
 import subprocess
 from glob import glob
-from shared import config, option as testing
 
-filter = config.get( 'rsync', 'filter', fallback=None )
-log_file = config.get( 'rsync', 'log_file', fallback=None )
-connection = config.get( 'rsync', 'connection' )
-source_base = os.path.realpath( config.get( 'rsync', 'source_base', fallback='/' ) )
-target_base = os.path.realpath( config.get( 'rsync', 'target_base' ) )
+import shared as backit
+from shared import option as testing
+import flags
+
+filter = backit.get( 'rsync', 'filter' )
+log_file = backit.get( 'rsync', 'log_file' )
+connection = backit.get( 'rsync', 'connection' )
+source_root = os.path.realpath( backit.get( 'rsync', 'source_root', '/' ) )
+backups_root = os.path.realpath( backit.get( 'rsync', 'backups_root' ) )
 
 timestamp = time.strftime( '%Y.%m.%d_%H.%M.%S' )
-backup_directory = os.path.join( target_base, timestamp )
-linkref_directory = os.path.join( target_base, 'latest' )
+backup_dir = os.path.join( backups_root, timestamp )
+prevlink = os.path.join( backups_root, 'latest' )
 
 # Build the rsync command
 command = [
@@ -37,25 +40,23 @@ if filter and os.path.exists( filter ) :
 	command.extend( [ '--filter', '. ' + filter ] )
 
 # If the /latest link exists, add flags for incremental backup
-if os.path.exists( linkref_directory ) :
+if os.path.exists( prevlink ) :
 	command = command + [
 		'--delete',
 		'--delete-excluded',
-		'--link-dest', linkref_directory
+		'--link-dest', prevlink
 	]
 
 # Add the source and destination
-command.append( connection + ':' + source_base )
-command.append( backup_directory )
+command.append( connection + ':' + source_root )
+command.append( backup_dir )
 
-# Create the backup directory
+# Create the backup_dir directory
 if not testing :
-	os.makedirs( backup_directory )
+	os.makedirs( backup_dir )
 
-	# Flag as being in the process of downloading
-	hash = hashlib.md5( archive_dir.encode( 'utf-8' ) ).hexdigest()
-	downloading_flag = '/tmp/backit-%s-%s.downloading' % ( project, hash );
-	open( downloading_flag, 'a' ).close()
+# Flag as being in the process of downloading
+flags.write( backup_dir, 'downloading' )
 
 # Execute the rsync command
 subprocess.call( command )
@@ -63,14 +64,14 @@ subprocess.call( command )
 # Clean up
 if not testing :
 	# Remove the previous /latest link
-	if os.path.exists( linkref_directory ) :
-		os.unlink( linkref_directory )
+	if os.path.exists( prevlink ) :
+		os.unlink( prevlink )
 
 	# Add the new /latest link, moving to the parent folder to ensure it's relative
 	start = os.getcwd()
-	os.chdir( target_base )
-	os.symlink( os.path.basename( backup_directory ), 'latest' )
+	os.chdir( backups_root )
+	os.symlink( os.path.basename( backup_dir ), 'latest' )
 	os.chdir( start )
 
-	# Remove the download flag
-	os.remove( downloading_flag )
+# Remove the download flag
+flags.remove( backup_dir, 'downloading' )
