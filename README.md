@@ -29,9 +29,9 @@ The config options are:
 
 **connection** - The SSH connection to use. NOTE: username is specified; a pure SSH alias won't work (rsync's fault, not mine)
 
-**source_base** - What base directory to backup from. Defaults to root (`/`)
+**source_root** - What base directory to backup from. Defaults to root (`/`)
 
-**target_base** - What directory to store all backups for this project in.
+**backups_root** - What directory to store all backups for this project in.
 
 **filter** - The full path (absolute) to the rsync rules file. See `rsync.rules-example` for an example.
 
