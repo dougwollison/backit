@@ -14,10 +14,10 @@ tarballs_dir = /tmp
 connection = backit@server
 
 # - The base directory of the source to backup from
-source_base = /
+source_root = /
 
 # - The base directory of the destination to backup to
-target_base = /archives/
+backups_root = /archives/
 
 # - The filter rules file
 filter = rsync.rules
