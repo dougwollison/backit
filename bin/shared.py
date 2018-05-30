@@ -25,3 +25,6 @@ conf_project = os.path.join( conf_dir, project + '.conf' )
 if os.path.isfile( conf_project ) :
 	config.read( conf_project )
 
+# Alias to ConfigParser.get()
+def get( section, name, default=None ) :
+	return config.get( section, name, fallback=default )
