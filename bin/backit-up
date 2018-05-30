@@ -15,8 +15,8 @@ source_root = os.path.realpath( backit.get( 'rsync', 'source_root', '/' ) )
 backups_root = os.path.realpath( backit.get( 'rsync', 'backups_root' ) )
 
 timestamp = time.strftime( '%Y.%m.%d_%H.%M.%S' )
-backup_dir = os.path.join( backups_root, timestamp )
-prevlink = os.path.join( backups_root, 'latest' )
+backup_dir = backit.pathit( backups_root, timestamp )
+prevlink = backit.pathit( backups_root, 'latest' )
 
 # Build the rsync command
 command = [

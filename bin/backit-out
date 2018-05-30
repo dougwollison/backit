@@ -24,7 +24,7 @@ separate_folders = backit.get( 'backblaze', 'separate_folders', False )
 # Get the specified or otherwise latest backup
 if date :
 	print( backups_root, date )
-	backup_dir = os.path.join( backups_root, date )
+	backup_dir = backit.pathit( backups_root, date )
 else :
 	backup_dir = sorted( glob( backups_root + '/20*_*' ), reverse=True )[0]
 
@@ -56,8 +56,8 @@ def make_archive( folder, parent = '' ) :
 	"""Create a gzipped tarball of the folder and upload it to B2"""
 
 	basename = os.path.basename( folder );
-	b2_filename = os.path.join( parent_folder, os.path.basename( parent ), basename + '.tgz' )
-	tar_file = os.path.join( tarballs_dir, b2_filename.lstrip( '/' ) )
+	b2_filename = backit.pathit( parent_folder, os.path.basename( parent ), basename + '.tgz' )
+	tar_file = backit.pathit( tarballs_dir, b2_filename )
 	tar_dir = os.path.dirname( tar_file )
 
 	# If straight up done, skip
@@ -110,7 +110,7 @@ if separate_folders :
 	print( folders )
 
 	for folder in folders :
-		folder = os.path.join( backup_dir, folder.lstrip( '/' ) ) # lstrip otherwise join replaces backup_dir with folder
+		folder = backit.pathit( backup_dir, folder )
 
 		for dir in sorted( glob( folder ) ) :
 			make_archive( dir, backup_dir )
