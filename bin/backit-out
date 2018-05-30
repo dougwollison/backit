@@ -16,8 +16,8 @@ account_id = config.get( 'backblaze', 'account_id' )
 account_key = config.get( 'backblaze', 'account_key' )
 bucket = config.get( 'backblaze', 'bucket' )
 
-subfolder = config.get( 'backblaze', 'parent_folder', fallback='' )
-folders = config.get( 'backblaze', 'separate_folders', fallback=False )
+parent_folder = config.get( 'backblaze', 'parent_folder', fallback='' )
+separate_folders = config.get( 'backblaze', 'separate_folders', fallback=False )
 
 flag_file = '/tmp/backit-%s-' % project
 
@@ -49,7 +49,7 @@ def make_archive( folder, parent = '' ) :
 	"""Create a gzipped tarball of the folder and upload it to B2"""
 
 	basename = os.path.basename( folder );
-	b2_filename = subfolder + '/' + os.path.basename( parent ) + '/' + basename + '.tgz'
+	b2_filename = parent_folder + '/' + os.path.basename( parent ) + '/' + basename + '.tgz'
 	tar_file = tarballs_dir + '/' + b2_filename
 	tar_dir = os.path.dirname( tar_file )
 
@@ -105,8 +105,8 @@ hash = hashlib.md5( archive_dir.encode( 'utf-8' ) ).hexdigest()
 working_file = '/tmp/backit-%s-%s.working' % ( project, hash );
 open( working_file, 'a' ).close()
 
-if folders :
-	folders = folders.split( ':' )
+if separate_folders :
+	folders = separate_folders.split( ':' )
 
 	for folder in folders :
 		folder = archive_dir + folder
