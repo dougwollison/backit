@@ -7,7 +7,7 @@ import shutil
 import hashlib
 from glob import glob
 from api import B2
-from shared import config, project
+from shared import config, project, option as backup
 
 tarballs_dir = os.path.realpath( config.get( 'storage', 'tarballs_dir' ) )
 backup_dir = os.path.realpath( config.get( 'rsync', 'target_base' ) )
@@ -22,8 +22,8 @@ folders = config.get( 'backblaze', 'separate_folders', fallback=False )
 flag_file = '/tmp/backit-%s-' % project
 
 # Get the specified or otherwise latest backup
-if len( sys.argv ) > 2 :
-	archive_dir = backup_dir + '/' + sys.argv[2]
+if backup :
+	archive_dir = backup_dir + '/' + str( backup )
 else :
 	archive_dir = sorted( glob( backup_dir + '/20*_*' ), reverse=True )[0]
 

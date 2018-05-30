@@ -4,11 +4,9 @@ import os
 import shutil
 import hashlib
 from glob import glob
-from shared import config, project
+from shared import config, project, option as keep
 
-keep = int( config.get( 'storage', 'keep' ) )
-if len( sys.argv ) > 2 :
-	keep = int( sys.argv[2] )
+keep = int( keep ) or int( config.get( 'storage', 'keep' ) )
 
 backup_dir = os.path.realpath( config.get( 'rsync', 'target_base' ) )
 

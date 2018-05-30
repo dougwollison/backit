@@ -8,6 +8,10 @@ project = 'default'
 if len( sys.argv ) > 1 :
 	project = sys.argv[1]
 
+option = None
+if len( sys.argv ) > 2 :
+	option = sys.argv[2]
+
 dir = os.path.dirname( os.path.dirname( os.path.realpath( __file__ ) ) ) + '/conf'
 
 conf_main = dir + '/default.conf'
