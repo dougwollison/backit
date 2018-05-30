@@ -58,7 +58,7 @@ def make_archive( folder, parent = '' ) :
 
 	basename = os.path.basename( folder );
 	b2_filename = os.path.join( parent_folder, os.path.basename( parent ), basename + '.tgz' )
-	tar_file = os.path.join( tarballs_dir, b2_filename )
+	tar_file = os.path.join( tarballs_dir, b2_filename.lstrip( '/' ) )
 	tar_dir = os.path.dirname( tar_file )
 
 	# These files will flag the status of the file
@@ -117,7 +117,7 @@ if separate_folders :
 	folders = separate_folders.split( ':' )
 
 	for folder in folders :
-		folder = os.path.join( archive_dir, folder )
+		folder = os.path.join( archive_dir, folder.lstrip( '/' ) ) # lstrip otherwise join replaces backup with folder
 
 		for dir in sorted( glob( folder ) ) :
 			make_archive( dir, archive_dir )
