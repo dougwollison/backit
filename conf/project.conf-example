@@ -1,3 +1,12 @@
+# The storage settings
+[storage]
+
+# How many backups to keep before deleting the earliest ones
+keep = 30
+
+# The location to store tar.gz files before uploading
+tarballs_dir = /tmp
+
 # The rsync settings
 [rsync]
 
