@@ -6,7 +6,7 @@ from glob import glob
 from shared import config, option as testing
 
 filter = config.get( 'rsync', 'filter', fallback=None )
-log_file = config.get( 'rsync', 'log_file' )
+log_file = config.get( 'rsync', 'log_file', fallback=None )
 connection = config.get( 'rsync', 'connection' )
 source_base = os.path.realpath( config.get( 'rsync', 'source_base', fallback='/' ) )
 target_base = os.path.realpath( config.get( 'rsync', 'target_base' ) )
@@ -29,8 +29,12 @@ if testing :
 	command.append( '--dry-run' )
 
 # Add the filter file if it exists
+if log_file and os.path.exists( log_file ) :
+	command.extend( [ '--log-file', log_file ] )
+
+# Add the filter file if it exists
 if filter and os.path.exists( filter ) :
-	command.extend( [ '--filter', '. ' + filter ] );
+	command.extend( [ '--filter', '. ' + filter ] )
 
 # If the /latest link exists, add flags for incremental backup
 if os.path.exists( linkref_directory ) :
