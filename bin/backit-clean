@@ -16,8 +16,8 @@ if keep < 1 :
 
 backups_root = os.path.realpath( backit.get( 'rsync', 'backups_root' ) )
 
-backups = sorted( glob( backups_root + '/20*_*' ) )
-count = len( backups )
+found_backups = sorted( glob( backups_root + '/20*_*' ) )
+count = len( found_backups )
 
 print( 'Found %d archive(s).' % count );
 
@@ -27,7 +27,7 @@ if count > keep :
 	n = 0
 	while count > keep :
 		# Get the earliest backup
-		backup_dir = archives[ n ]
+		backup_dir = found_backups[ n ]
 
 		# Check if it's flagged as being worked on
 		if flags.check( backup_dir, 'archiving' ) :
