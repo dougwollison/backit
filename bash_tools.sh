@@ -32,7 +32,7 @@ _backit()
 			# extra, proceed based on command
 			if [ "${COMP_WORDS[1]}" == 'out' ]; then
 				# archive command, list available folders
-				conf=/opt/backit/conf/${COMP_WORDS[2]}.conf
+				conf=$BACKIT_DIR/conf/${COMP_WORDS[2]}.conf
 
 				if [ -r "$conf" ]; then
 					# get target_base from the config file
