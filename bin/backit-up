@@ -12,8 +12,8 @@ source_base = os.path.realpath( config.get( 'rsync', 'source_base', fallback='/'
 target_base = os.path.realpath( config.get( 'rsync', 'target_base' ) )
 
 timestamp = time.strftime( '%Y.%m.%d_%H.%M.%S' )
-backup_directory = target_base + '/' + timestamp
-linkref_directory = target_base + '/latest'
+backup_directory = os.path.join( target_base, timestamp )
+linkref_directory = os.path.join( target_base, 'latest' )
 
 # Build the rsync command
 command = [

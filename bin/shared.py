@@ -12,13 +12,16 @@ option = None
 if len( sys.argv ) > 2 :
 	option = sys.argv[2]
 
-dir = os.path.dirname( os.path.dirname( os.path.realpath( __file__ ) ) ) + '/conf'
+backit_dir = os.path.realpath( os.path.join( __file__, '../../' ) )
+conf_dir = os.path.join( backit_dir, 'conf' )
 
-conf_main = dir + '/default.conf'
-conf_project = dir + '/' + project + '.conf';
-
+# Read the default config if found
+conf_main = os.path.join( conf_dir, 'default.conf' )
 if os.path.isfile( conf_main ) :
 	config.read( conf_main )
 
+# Read the project config if found
+conf_project = os.path.join( conf_dir, project + '.conf' )
 if os.path.isfile( conf_project ) :
 	config.read( conf_project )
+
