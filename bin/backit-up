@@ -52,6 +52,11 @@ command.append( backup_directory )
 if not testing :
 	os.makedirs( backup_directory )
 
+	# Flag as being in the process of downloading
+	hash = hashlib.md5( archive_dir.encode( 'utf-8' ) ).hexdigest()
+	downloading_flag = '/tmp/backit-%s-%s.downloading' % ( project, hash );
+	open( downloading_flag, 'a' ).close()
+
 # Execute the rsync command
 subprocess.call( command )
 
@@ -66,3 +71,6 @@ if not testing :
 	os.chdir( target_base )
 	os.symlink( os.path.basename( backup_directory ), 'latest' )
 	os.chdir( start )
+
+	# Remove the download flag
+	os.remove( downloading_flag )
