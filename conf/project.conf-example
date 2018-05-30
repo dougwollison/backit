@@ -1,10 +1,10 @@
 # The storage settings
 [storage]
 
-# How many backups to keep before deleting the earliest ones
+# - How many backups to keep before deleting the earliest ones
 keep = 30
 
-# The location to store tar.gz files before uploading
+# - The location to store tar.gz files before uploading
 tarballs_dir = /tmp
 
 # The rsync settings
@@ -35,8 +35,8 @@ account_key = 1234567890
 # - The bucket to upload to
 bucket = MyBucket
 
-# - The directory to store tarballs in
-tarballs_dir = /tmp/backit
+# - The parent folder within the bucket
+parent_folder = /
 
 # - A colin-separated list of specific folders to make separate archives of
 separate_folders = false
