@@ -38,5 +38,5 @@ bucket = MyBucket
 # - The parent folder within the bucket
 parent_folder = /
 
-# - A colin-separated list of specific folders to make separate archives of
+# - A colon-separated list of specific folders to make separate archives of
 separate_folders = false
