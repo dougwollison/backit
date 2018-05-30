@@ -17,6 +17,8 @@ dir = os.path.dirname( os.path.dirname( os.path.realpath( __file__ ) ) ) + '/con
 conf_main = dir + '/default.conf'
 conf_project = dir + '/' + project + '.conf';
 
-config.read( conf_main )
+if os.path.isfile( conf_main ) :
+	config.read( conf_main )
+
 if os.path.isfile( conf_project ) :
 	config.read( conf_project )
