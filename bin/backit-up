@@ -15,6 +15,9 @@ timestamp = time.strftime( '%Y.%m.%d_%H.%M.%S' )
 backup_directory = target_base + '/' + timestamp
 linkref_directory = target_base + '/latest'
 
+testing = len( sys.argv ) > 2 && sys.argv[2] == 'test'
+
+# Build the rsync command
 command = [
 	'/usr/bin/rsync',
 	'-vvhrtplHP',
@@ -24,6 +27,11 @@ command = [
 	'--log-file', log_file,
 ]
 
+# If test flag is present, do a dry run
+if testing :
+	command.append( '--dry-run' )
+
+# If the /latest link exists, add flags for incremental backup
 if os.path.exists( linkref_directory ) :
 	command = command + [
 		'--delete',
@@ -31,18 +39,21 @@ if os.path.exists( linkref_directory ) :
 		'--link-dest', linkref_directory
 	]
 
-command = command + [
-	connection + ':' + source_base,
-	backup_directory
-]
+# Add the source and destination
+command.append( connection + ':' + source_base )
+command.append( backup_directory )
 
+# Create the backup directory
 os.makedirs( backup_directory )
 
+# Execute the rsync command
 subprocess.call( command )
 
+# Remove the previous /latest link
 if os.path.exists( linkref_directory ) :
 	os.unlink( linkref_directory )
 
+# Add the new /latest link, moving to the parent folder to ensure it's relative
 start = os.getcwd()
 os.chdir( target_base )
 os.symlink( os.path.basename( backup_directory ), 'latest' )
