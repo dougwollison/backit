@@ -21,13 +21,6 @@ separate_folders = config.get( 'backblaze', 'separate_folders', fallback=False )
 
 flag_file = '/tmp/backit-%s-' % project
 
-hash = hashlib.md5( archive_dir.encode( 'utf-8' ) ).hexdigest()
-downloading_flag = '/tmp/backit-%s-%s.downloading' % ( project, hash )
-
-if os.path.isfile( downloading_flag ) :
-	print( 'Unable to archive ' + archive_dir + ' (download in progress).' )
-	sys.exit( 0 )
-
 # Get the specified or otherwise latest backup
 if backup :
 	archive_dir = backup_dir + '/' + str( backup )
@@ -37,6 +30,13 @@ else :
 if not os.path.isdir( archive_dir ) :
 	print( 'Archive not found: ' + archive_dir )
 	sys.exit()
+
+# Check if the backup is somehow still downloading
+hash = hashlib.md5( archive_dir.encode( 'utf-8' ) ).hexdigest()
+downloading_flag = '/tmp/backit-%s-%s.downloading' % ( project, hash )
+if os.path.isfile( downloading_flag ) :
+	print( 'Unable to archive ' + archive_dir + ' (download in progress).' )
+	sys.exit( 0 )
 
 print( 'Exporting %s to B2...' % archive_dir )
 
