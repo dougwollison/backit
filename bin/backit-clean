@@ -5,10 +5,11 @@ import shutil
 from glob import glob
 
 import shared as backit
-from shared import option as keep
+from shared import option as testing
 import flags
 
-keep = int( keep ) if keep else int( backit.get( 'storage', 'keep', 0 ) )
+testing = bool( testing )
+keep = int( backit.get( 'storage', 'keep', 0 ) )
 
 if keep < 1 :
 	print( 'Aborting cleanup; number of backups requested to keep is less than 1.' )
@@ -35,9 +36,12 @@ if count > keep :
 			sys.exit( 0 )
 
 		# Recursively delete the archive, advance
-		print( 'Deleting ' + backup_dir + '...' )
-		shutil.rmtree( backup_dir )
-		print( 'Done.' )
+		if testing :
+			print( 'Will delete ' + backup_dir + '.' )
+		else :
+			print( 'Deleting ' + backup_dir + '...' )
+			shutil.rmtree( backup_dir )
+			print( 'Done.' )
 
 		count -= 1
 		n += 1
