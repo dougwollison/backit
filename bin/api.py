@@ -305,7 +305,7 @@ class B2 :
 			upload = json.load( input )
 			input.close()
 
-		if not upload['authorizationToken'] or renew :
+		if not ( 'fileId' in upload ) or renew :
 			# Get the needed information for the part upload
 			result = self.try_request(
 				'%s/b2api/v2/b2_get_upload_part_url' % self.url,
@@ -316,8 +316,6 @@ class B2 :
 					'Authorization': self.token
 				}
 			)
-
-			print( result )
 
 			# merge into job
 			upload = { **upload, **result }
