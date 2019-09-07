@@ -5,6 +5,7 @@
 - *_log
 - *.log
 - *.sock
+- node_modules
 
 # Files too damn big to backup
 - *.mp3
