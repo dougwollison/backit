@@ -282,20 +282,27 @@ class B2 :
 
 		self.try_upload_file( job, data, savename, hash )
 
-	def get_upload_part_url( self, file_id ) :
+	def get_upload_part_url( self, file_id, renew=False ) :
 		"""Get the URL to use for uploading a file part to the bucket"""
 
 		# Generate a cache filename to use
 		cache = '/tmp/b2-job-' + file_id
 
+		# Default job data
+		upload = {
+			'bytes_sent': 0,
+			'part_number': 0,
+			'hash_array': [],
+		}
+
 		# Check if the upload was started
 		if os.path.isfile( cache ) :
 			# Pull from cache
 			input = open( cache, 'r' )
-			result = json.load( input )
+			upload = json.load( input )
 			input.close()
 
-		else :
+		if not upload['authorizationToken'] or renew :
 			# Get the needed information for the part upload
 			result = self.try_request(
 				'%s/b2api/v2/b2_get_upload_part_url' % self.url,
@@ -307,18 +314,17 @@ class B2 :
 				}
 			)
 
-			# Store the file ID for reference, add default progress values
-			result['file_id'] = file_id
-			result['bytes_sent'] = 0
-			result['part_number'] = 1
-			result['hash_array'] = []
+			print( result )
 
-			# Save to cache
-			with open( cache, 'w' ) as output :
-				json.dump( result, output )
-				output.close()
+			# merge into job
+			upload = { **upload, **result }
 
-		return result
+		# Save to cache
+		with open( cache, 'w' ) as output :
+			json.dump( upload, output )
+			output.close()
+
+		return upload
 
 	def try_upload_file_part( self, job, data, size, hash ) :
 		"""Perform the actual file part upload"""
