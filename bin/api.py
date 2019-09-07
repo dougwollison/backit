@@ -247,12 +247,8 @@ class B2 :
 				self.pause( '--- Server/Client error', 'Renewing url/token', 10 )
 
 				# Try fetching a new url/token in case they expired
-				fixed = self.get_upload_url( job['bucket_id'] );
-				job[ 'uploadUrl' ] = fixed[ 'uploadUrl' ]
-				job[ 'authorizationToken' ] = fixed[ 'authorizationToken' ]
-
-				# Try again
-				self.try_upload_file( job, data, savename, hash )
+				renewed = self.get_upload_url( job['bucket_id'] )
+				self.try_upload_file( renewed, data, savename, hash )
 
 			else :
 				raise
@@ -262,6 +258,13 @@ class B2 :
 				self.pause( '--- Connection reset/refused: ' + str( e ), 'Retrying', 5 )
 
 				self.try_upload_file( job, data, savename, hash )
+
+			if isinstance( e.reason, IOError ) and e.reason.errno == 32 :
+				self.pause( '--- Broken pipe', 'Renewing url/token', 10 )
+
+				# Try fetching a new url/token in case they expired
+				renewed = self.get_upload_url( job['bucket_id'] )
+				self.try_upload_file( renewed, data, savename, hash )
 
 			else :
 				self.fail( 'Error connecting to B2: ' + str( e ) )
@@ -349,11 +352,8 @@ class B2 :
 				self.pause( '--- Server/Client error', 'Renewing url/token', 10 )
 
 				# Try fetching a new url/token in case they expired
-				fixed = self.get_upload_part_url( job['file_id'] )
-				job[ 'uploadUrl' ] = fixed[ 'uploadUrl' ]
-				job[ 'authorizationToken' ] = fixed[ 'authorizationToken' ]
-
-				self.try_upload_file_part( job, data, size, hash )
+				renewed = self.get_upload_part_url( job['fileId'], 'renew' )
+				self.try_upload_file_part( renewed, data, size, hash )
 
 			else :
 				raise
@@ -363,6 +363,13 @@ class B2 :
 				self.pause( '--- Connection reset/refused: ' + str( e ), 'Retrying', 5 )
 
 				self.try_upload_file_part( job, data, size, hash )
+
+			if isinstance( e.reason, IOError ) and e.reason.errno == 32 :
+				self.pause( '--- Broken pipe', 'Renewing url/token', 10 )
+
+				# Try fetching a new url/token in case they expired
+				renewed = self.get_upload_part_url( job['fileId'], 'renew' )
+				self.try_upload_file_part( renewed, data, size, hash )
 
 			else :
 				self.fail( 'Error connecting to B2: ' + str( e ) )
