@@ -75,6 +75,8 @@ class B2 :
 	def try_request( self, url, data, headers ) :
 		"""Attempt the request, reauthorizing or retrying if needed"""
 
+		retry = False
+
 		try :
 			return self.request( url, data, headers );
 
@@ -84,14 +86,12 @@ class B2 :
 
 			if e.code >= 500 :
 				self.log( '--- Server error' )
-
-				return self.try_request( url, data, headers );
+				retry = True
 
 			if e.code == 401 :
 				self.log( '--- Auth error', 'Reauthorizing', 5 )
 				self.authorize()
-
-				return self.try_request( url, data, headers );
+				retry = True
 
 			else :
 				raise
@@ -99,14 +99,18 @@ class B2 :
 		except urlerr.URLError as e :
 			if is_reset_error( e ) :
 				self.pause( '--- Connection error' )
-
-				return self.try_request( url, data, headers );
+				retry = True
 
 			else :
 				self.fail( 'Error connecting to B2: ' + str( e ) )
 
+		if retry :
+			return self.try_request( url, data, headers );
+
 	def authorize( self ) :
 		"""Authorize the account, store the token, url, and part size"""
+
+		retry = False
 
 		# Fetch the connection info needed
 		try :
@@ -125,11 +129,13 @@ class B2 :
 		except urlerr.URLError as e :
 			if is_reset_error( e ) :
 				self.pause( '--- Connection reset/refused: ' + str( e ), 'Retrying', 5 )
-
-				self.authorize()
+				retry = True
 
 			else :
 				self.fail( 'Error connecting to B2: ' + str( e ) )
+
+		if retry :
+			return self.authorize()
 
 		# Store the credentials and settings
 		self.token = data[ 'authorizationToken' ]
@@ -226,6 +232,8 @@ class B2 :
 	def try_upload_file( self, job, data, savename, hash ) :
 		"""Perform the actual file upload"""
 
+		retry = False
+
 		try :
 			# Send the file with the hash and desired savename
 			self.request(
@@ -247,8 +255,8 @@ class B2 :
 				self.pause( '--- Server/Client error', 'Renewing url/token', 10 )
 
 				# Try fetching a new url/token in case they expired
-				renewed = self.get_upload_url( job['bucket_id'] )
-				self.try_upload_file( renewed, data, savename, hash )
+				job = self.get_upload_url( job['bucket_id'] )
+				retry = True
 
 			else :
 				raise
@@ -256,18 +264,20 @@ class B2 :
 		except urlerr.URLError as e :
 			if is_reset_error( e ) :
 				self.pause( '--- Connection reset/refused: ' + str( e ), 'Retrying', 5 )
-
-				self.try_upload_file( job, data, savename, hash )
+				retry = True
 
 			if isinstance( e.reason, IOError ) and e.reason.errno == 32 :
 				self.pause( '--- Broken pipe', 'Renewing url/token', 10 )
 
 				# Try fetching a new url/token in case they expired
-				renewed = self.get_upload_url( job['bucket_id'] )
-				self.try_upload_file( renewed, data, savename, hash )
+				job = self.get_upload_url( job['bucket_id'] )
+				retry = True
 
 			else :
 				self.fail( 'Error connecting to B2: ' + str( e ) )
+
+		if retry :
+			self.try_upload_file( job, data, savename, hash )
 
 	def upload_file( self, file, bucket, savename ) :
 		"""Perform a standard file upload"""
@@ -317,6 +327,8 @@ class B2 :
 				}
 			)
 
+			print( result )
+
 			# merge into job
 			upload = { **upload, **result }
 
@@ -329,6 +341,8 @@ class B2 :
 
 	def try_upload_file_part( self, job, data, size, hash ) :
 		"""Perform the actual file part upload"""
+
+		retry = False
 
 		try :
 			self.request(
@@ -350,8 +364,8 @@ class B2 :
 				self.pause( '--- Server/Client error', 'Renewing url/token', 10 )
 
 				# Try fetching a new url/token in case they expired
-				renewed = self.get_upload_part_url( job['fileId'], 'renew' )
-				self.try_upload_file_part( renewed, data, size, hash )
+				job = self.get_upload_part_url( job['fileId'], 'renew' )
+				retry = True
 
 			else :
 				raise
@@ -359,18 +373,20 @@ class B2 :
 		except urlerr.URLError as e :
 			if is_reset_error( e ) :
 				self.pause( '--- Connection reset/refused: ' + str( e ), 'Retrying', 5 )
-
-				self.try_upload_file_part( job, data, size, hash )
+				retry = True
 
 			if isinstance( e.reason, IOError ) and e.reason.errno == 32 :
 				self.pause( '--- Broken pipe', 'Renewing url/token', 10 )
 
 				# Try fetching a new url/token in case they expired
-				renewed = self.get_upload_part_url( job['fileId'], 'renew' )
-				self.try_upload_file_part( renewed, data, size, hash )
+				job = self.get_upload_part_url( job['fileId'], 'renew' )
+				retry = True
 
 			else :
 				self.fail( 'Error connecting to B2: ' + str( e ) )
+
+		if retry :
+			self.try_upload_file_part( job, data, size, hash )
 
 	def upload_large_file( self, file, bucket, savename ) :
 		"""Perform a large file upload"""
