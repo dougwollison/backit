@@ -112,7 +112,7 @@ class B2 :
 		try :
 			auth = self.account_id + ':' + self.account_key
 			data = self.request(
-				'https://api.backblazeb2.com/b2api/v1/b2_authorize_account',
+				'https://api.backblazeb2.com/b2api/v2/b2_authorize_account',
 				None,
 				headers = {
 					'Authorization': 'Basic ' + str( base64.b64encode( str.encode( auth ) ), 'utf-8' ),
@@ -144,7 +144,7 @@ class B2 :
 
 		# Fetch the bucket list
 		result = self.try_request(
-			'%s/b2api/v1/b2_list_buckets' % self.url,
+			'%s/b2api/v2/b2_list_buckets' % self.url,
 			json.dumps( {
 				'accountId': self.account_id
 			} ),
@@ -174,7 +174,7 @@ class B2 :
 		else :
 			# Request a fresh job
 			result = self.try_request(
-				'%s/b2api/v1/b2_start_large_file' % self.url,
+				'%s/b2api/v2/b2_start_large_file' % self.url,
 				json.dumps( {
 					'fileName': savename,
 					'contentType': 'b2/x-auto',
@@ -197,7 +197,7 @@ class B2 :
 
 		# Submit the hash array to confirm the file is finished
 		result = self.request(
-			'%s/b2api/v1/b2_finish_large_file' % self.url,
+			'%s/b2api/v2/b2_finish_large_file' % self.url,
 			json.dumps( {
 				'fileId': file_id,
 				'partSha1Array': hash_array,
@@ -212,7 +212,7 @@ class B2 :
 
 		# Get the needed information for the upload job
 		result = self.try_request(
-			'%s/b2api/v1/b2_get_upload_url' % self.url,
+			'%s/b2api/v2/b2_get_upload_url' % self.url,
 			json.dumps( {
 				'bucketId': bucket,
 			} ),
@@ -298,7 +298,7 @@ class B2 :
 		else :
 			# Get the needed information for the part upload
 			result = self.try_request(
-				'%s/b2api/v1/b2_get_upload_part_url' % self.url,
+				'%s/b2api/v2/b2_get_upload_part_url' % self.url,
 				json.dumps( {
 					'fileId': file_id,
 				} ),
