@@ -97,7 +97,8 @@ def make_archive( folder, parent = '' ) :
 	os.remove( tar_file )
 
 	# Flag as done
-	flags.remove( tar_file, 'done' )
+	flags.remove( tar_file, 'ready' )
+	flags.write( tar_file, 'done' )
 
 	print( 'Done.' )
 
