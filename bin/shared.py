@@ -20,7 +20,8 @@ def get( section, name, default=None ) :
 def pathit( start, *parts ) :
 	path = [ start ]
 	for part in parts :
-		path.append( part.strip( '/' ) )
+		if not part == '' :
+			path.append( part.strip( '/' ) )
 
 	return '/'.join( path )
 
