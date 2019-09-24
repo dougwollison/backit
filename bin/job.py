@@ -11,13 +11,16 @@ class JobFile :
 			'files': {}
 		}
 
-		if os.path.isfile( self.file ) :
+		if self.exists() :
 			input = open( self.file )
 			self.data = json.load( input )
 			input.close()
 
 		elif initStatus != None :
 			self.save()
+
+	def exists( self ) :
+		return os.path.isfile( self.file )
 
 	def save( self ) :
 		with open( self.file, 'w' ) as output :
