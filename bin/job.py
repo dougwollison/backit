@@ -35,8 +35,11 @@ class JobFile :
 		self.save()
 
 	def isFile( self, filename, status ) :
+		if not filename in self.data['files'] :
+			return False
+
 		return self.data['files'][ filename ] == status
 
 	def logFile( self, filename, status ) :
-		self.data['files'][ filename ] == status
+		self.data['files'][ filename ] = status
 		self.save()
