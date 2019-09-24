@@ -63,14 +63,14 @@ def make_archive( folder, parent = '' ) :
 	tar_dir = os.path.dirname( tar_file )
 
 	# If straight up done, skip
-	if backup.isFile( tar_file, 'done' ) :
+	if backup.isFile( b2_filename, 'done' ) :
 		print( 'Skipping ' + folder )
 		return
 
 	mkdir( tar_dir )
 
 	# (Re)create the archive if not yet ready
-	if not backup.isFile( tar_file, 'ready' ) :
+	if not backup.isFile( b2_filename, 'ready' ) :
 		print( 'Archiving ' + folder + '...' )
 
 		tar = tarfile.open( tar_file, 'w:gz' )
@@ -82,7 +82,7 @@ def make_archive( folder, parent = '' ) :
 		gc.collect()
 
 		# Flag as ready
-		backup.logFile( tar_file, 'ready' )
+		backup.logFile( b2_filename, 'ready' )
 
 		print( 'Done.' )
 
@@ -99,7 +99,7 @@ def make_archive( folder, parent = '' ) :
 	os.remove( tar_file )
 
 	# Flag as done
-	backup.logFile( tar_file, 'done' )
+	backup.logFile( b2_filename, 'done' )
 
 	print( 'Done.' )
 
