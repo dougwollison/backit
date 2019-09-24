@@ -35,8 +35,8 @@ account_key = 1234567890
 # - The bucket to upload to
 bucket = MyBucket
 
-# - The parent folder within the bucket
-parent_folder = /
+# - The parent folder within the bucket NO LEADING SLASH
+parent_folder =
 
 # - A colon-separated list of specific folders to make separate archives of
 separate_folders = false
