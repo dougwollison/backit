@@ -89,7 +89,11 @@ def make_archive( folder, parent = '' ) :
 	print( 'Uploading ' + tar_file + '...' )
 
 	# Upload to B2
-	os.system( 'b2 upload-file %s %s %s' % ( bucket, tar_file, b2_filename ) )
+	status = os.system( 'b2 upload-file %s %s %s' % ( bucket, tar_file, b2_filename ) )
+
+	if not status == 0 :
+		print( 'Upload error. Aborting.' )
+		return
 
 	print( 'Done.' )
 
