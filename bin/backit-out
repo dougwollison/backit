@@ -37,7 +37,7 @@ if not os.path.isdir( backup_dir ) :
 # Check if the backup_dir is somehow still downloading
 if backup.isStatus( 'downloading' ) :
 	print( 'Unable to archive ' + backup_dir + ' (download in progress).' )
-	sys.exit( 0 )
+	sys.exit()
 
 print( 'Exporting %s to B2...' % backup_dir )
 
@@ -93,7 +93,7 @@ def make_archive( folder, parent = '' ) :
 
 	if not status == 0 :
 		print( 'Upload error. Aborting.' )
-		return
+		sys.exit()
 
 	print( 'Done.' )
 
