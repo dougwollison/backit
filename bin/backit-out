@@ -30,7 +30,7 @@ else :
 backup = JobFile( backup_dir )
 
 # Ensure the archive exists
-if not backup.exists() :
+if not os.path.isdir( backup_dir ) :
 	print( 'Archive not found: ' + backup_dir )
 	sys.exit()
 
