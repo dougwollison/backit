@@ -8,7 +8,7 @@ from glob import glob
 
 import shared as backit
 from shared import option as date
-import flags
+from job import JobFile
 
 tarballs_dir = os.path.realpath( backit.get( 'storage', 'tarballs_dir' ) )
 backups_root = os.path.realpath( backit.get( 'rsync', 'backups_root' ) )
@@ -27,13 +27,15 @@ if date :
 else :
 	backup_dir = sorted( glob( backups_root + '/20*_*' ), reverse=True )[0]
 
+backup = JobFile( backup_dir )
+
 # Ensure the archive exists
-if not os.path.isdir( backup_dir ) :
+if not backup.exists() :
 	print( 'Archive not found: ' + backup_dir )
 	sys.exit()
 
 # Check if the backup_dir is somehow still downloading
-if flags.check( backup_dir, 'downloading' ) :
+if backup.isStatus( 'downloading' ) :
 	print( 'Unable to archive ' + backup_dir + ' (download in progress).' )
 	sys.exit( 0 )
 
@@ -61,14 +63,14 @@ def make_archive( folder, parent = '' ) :
 	tar_dir = os.path.dirname( tar_file )
 
 	# If straight up done, skip
-	if flags.check( tar_file, 'done' ) :
+	if backup.isFile( tar_file, 'done' ) :
 		print( 'Skipping ' + folder )
 		return
 
 	mkdir( tar_dir )
 
 	# (Re)create the archive if not yet ready
-	if not flags.check( tar_file, 'ready' ) :
+	if not backup.isFile( tar_file, 'ready' ) :
 		print( 'Archiving ' + folder + '...' )
 
 		tar = tarfile.open( tar_file, 'w:gz' )
@@ -80,7 +82,7 @@ def make_archive( folder, parent = '' ) :
 		gc.collect()
 
 		# Flag as ready
-		flags.write( tar_file, 'ready' )
+		backup.logFile( tar_file, 'ready' )
 
 		print( 'Done.' )
 
@@ -97,13 +99,12 @@ def make_archive( folder, parent = '' ) :
 	os.remove( tar_file )
 
 	# Flag as done
-	flags.remove( tar_file, 'ready' )
-	flags.write( tar_file, 'done' )
+	backup.logFile( tar_file, 'done' )
 
 	print( 'Done.' )
 
 # Flag as being in the process of archiving
-flags.write( backup_dir, 'archiving' )
+backup.setStatus( 'uploading' )
 
 if separate_folders :
 	folders = separate_folders.split( ':' )
@@ -121,7 +122,4 @@ else :
 
 shutil.rmtree( tarballs_dir )
 
-for done_flag in glob( '/tmp/backit-%s-*.done' % backit.project ) :
-	os.remove( done_flag )
-
-flags.remove( backup_dir, 'archiving' )
+backup.setStatus( 'archived' )

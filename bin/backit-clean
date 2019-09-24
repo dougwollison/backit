@@ -6,7 +6,7 @@ from glob import glob
 
 import shared as backit
 from shared import option as testing
-import flags
+from job import JobFile
 
 testing = bool( testing )
 keep = int( backit.get( 'storage', 'keep', 0 ) )
@@ -30,9 +30,17 @@ if count > keep :
 		# Get the earliest backup
 		backup_dir = found_backups[ n ]
 
-		# Check if it's flagged as being worked on
-		if flags.check( backup_dir, 'archiving' ) :
-			print( 'Unable to delete ' + backup_dir + ' (archive in progress). Aborting.' )
+		# Load it's project file
+		backup = JobFile( backup_dir )
+
+		# Check if it's incomplete
+		if backup.isStatus( 'downloading' ):
+			print( 'Unable to delete ' + backup_dir + ' (download in progress). Aborting.' )
+			sys.exit( 0 )
+
+		# Check if it's still uploading
+		if backup.isStatus( 'uploading' ) :
+			print( 'Unable to delete ' + backup_dir + ' (upload in progress). Aborting.' )
 			sys.exit( 0 )
 
 		# Recursively delete the archive, advance
@@ -41,6 +49,7 @@ if count > keep :
 		else :
 			print( 'Deleting ' + backup_dir + '...' )
 			shutil.rmtree( backup_dir )
+			os.remove( backup.file )
 			print( 'Done.' )
 
 		count -= 1

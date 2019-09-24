@@ -6,7 +6,7 @@ from glob import glob
 
 import shared as backit
 from shared import option as testing
-import flags
+from job import JobFile
 
 filter = backit.get( 'rsync', 'filter' )
 log_file = backit.get( 'rsync', 'log_file' )
@@ -55,8 +55,8 @@ command.append( backup_dir )
 if not testing :
 	os.makedirs( backup_dir )
 
-# Flag as being in the process of downloading
-flags.write( backup_dir, 'downloading' )
+# Create the job for it
+backup = JobFile( backup_dir, 'downloading' )
 
 # Execute the rsync command
 subprocess.call( command )
@@ -74,4 +74,4 @@ if not testing :
 	os.chdir( start )
 
 # Remove the download flag
-flags.remove( backup_dir, 'downloading' )
+backup.setStatus( 'saved' )
