@@ -31,7 +31,7 @@ class JobFile :
 		return self.data['status'] == status
 
 	def setStatus( self, status ) :
-		self.data['status'] == status
+		self.data['status'] = status
 		self.save()
 
 	def isFile( self, filename, status ) :
