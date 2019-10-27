@@ -25,7 +25,8 @@ if date :
 	print( backups_root, date )
 	backup_dir = backit.pathit( backups_root, date )
 else :
-	backup_dir = sorted( glob( backups_root + '/20*_*' ), reverse=True )[0]
+	backup_file = sorted( glob( backups_root + '/20*_*.json' ), reverse=True )[0]
+	backup_dir = backup_file.replace( '.json', '' )
 
 backup = JobFile( backup_dir )
 
