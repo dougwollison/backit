@@ -17,7 +17,7 @@ if keep < 1 :
 
 backups_root = os.path.realpath( backit.get( 'rsync', 'backups_root' ) )
 
-found_backups = sorted( glob( backups_root + '/20*_*' ) )
+found_backups = sorted( glob( backups_root + '/20*_*.json' ) )
 count = len( found_backups )
 
 print( 'Found %d archive(s).' % count );
@@ -28,7 +28,7 @@ if count > keep :
 	n = 0
 	while count > keep :
 		# Get the earliest backup
-		backup_dir = found_backups[ n ]
+		backup_dir = found_backups[ n ].replace( '.json', '' )
 
 		# Load it's project file
 		backup = JobFile( backup_dir )
