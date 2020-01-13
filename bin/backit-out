@@ -12,6 +12,7 @@ from job import JobFile
 
 tarballs_dir = os.path.realpath( backit.get( 'storage', 'tarballs_dir' ) )
 backups_root = os.path.realpath( backit.get( 'rsync', 'backups_root' ) )
+b2 = backit.get( 'backblaze', 'b2', 'b2' )
 part_size = int( backit.get( 'backblaze', 'part_size' ) )
 account_id = backit.get( 'backblaze', 'account_id' )
 account_key = backit.get( 'backblaze', 'account_key' )
@@ -43,7 +44,7 @@ if backup.isStatus( 'downloading' ) :
 print( 'Exporting %s to B2...' % backup_dir )
 
 # (Re)Authorize for B2
-os.system( 'b2 authorize-account %s %s' % ( account_id, account_key ) )
+os.system( '%s authorize-account %s %s' % ( b2, account_id, account_key ) )
 
 def mkdir( dir ) :
 	"""Shorthand for creating a directory that doesn't exist yet"""
@@ -90,7 +91,7 @@ def make_archive( folder, parent = '' ) :
 	print( 'Uploading ' + tar_file + '...' )
 
 	# Upload to B2
-	status = os.system( 'b2 upload-file %s %s %s' % ( bucket, tar_file, b2_filename ) )
+	status = os.system( '%s upload-file %s %s %s' % ( b2, bucket, tar_file, b2_filename ) )
 
 	if not status == 0 :
 		print( 'Upload error. Aborting.' )
