@@ -28,6 +28,9 @@ log_file = rsync.log
 # The Backblaze B2 settings
 [backblaze]
 
+# - The path to the B2 cli executable
+b2 = /usr/local/bin/b2
+
 # - The account credentials
 account_id = B2ACCOUNTID
 account_key = 1234567890
