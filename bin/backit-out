@@ -72,7 +72,7 @@ def make_archive( folder, parent = '', prefix = '' ) :
 	mkdir( tar_dir )
 
 	# (Re)create the archive if not yet ready
-	if not backup.isFile( b2_filename, 'ready' ) :
+	if not backup.isFile( b2_filename, 'ready' ) or not os.path.exists( tar_file ) :
 		print( 'Archiving ' + folder + '...' )
 
 		tar = tarfile.open( tar_file, 'w:gz' )
