@@ -21,7 +21,7 @@ prevlink = backit.pathit( backups_root, 'latest' )
 # Build the rsync command
 command = [
 	'/usr/bin/rsync',
-	'-vvhrtplHP',
+	'-vhrtplH',
 	'-e', 'ssh',
 	'--rsync-path', 'sudo rsync',
 	'--log-file', log_file,
