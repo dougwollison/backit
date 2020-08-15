@@ -35,13 +35,13 @@ if count > keep :
 
 		# Check if it's incomplete
 		if backup.isStatus( 'downloading' ):
-			print( 'Unable to delete ' + backup_dir + ' (download in progress). Aborting.' )
-			sys.exit( 0 )
+			print( 'Unable to delete ' + backup_dir + ' (download in progress). Skipping.' )
+			continue
 
 		# Check if it's still uploading
 		if backup.isStatus( 'uploading' ) :
-			print( 'Unable to delete ' + backup_dir + ' (upload in progress). Aborting.' )
-			sys.exit( 0 )
+			print( 'Unable to delete ' + backup_dir + ' (upload in progress). Skipping.' )
+			continue
 
 		# Recursively delete the archive, advance
 		if testing :
