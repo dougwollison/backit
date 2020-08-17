@@ -29,6 +29,7 @@ if count > keep :
 	while count > keep :
 		# Get the earliest backup
 		backup_dir = found_backups[ n ].replace( '.json', '' )
+		n += 1
 
 		# Load it's project file
 		backup = JobFile( backup_dir )
@@ -53,6 +54,5 @@ if count > keep :
 			print( 'Done.' )
 
 		count -= 1
-		n += 1
 else:
 	print( 'No cleanup necessary.' )
