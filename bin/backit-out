@@ -41,6 +41,11 @@ if backup.isStatus( 'downloading' ) :
 	print( 'Unable to archive ' + backup_dir + ' (download in progress).' )
 	sys.exit()
 
+# Check if the backup_dir is somehow already archived
+if backup.isStatus( 'archived' ) :
+	print( 'Unable to archive ' + backup_dir + ' (already archived).' )
+	sys.exit()
+
 print( 'Exporting %s to B2...' % backup_dir )
 
 # (Re)Authorize for B2
