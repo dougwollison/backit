@@ -49,7 +49,11 @@ if count > keep :
 			print( 'Will delete ' + backup_dir + '.' )
 		else :
 			print( 'Deleting ' + backup_dir + '...' )
-			shutil.rmtree( backup_dir )
+
+			# Check if directory exists, just in case
+			if os.path.exists( backup_dir ) :
+				shutil.rmtree( backup_dir )
+	
 			os.remove( backup.file )
 			print( 'Done.' )
 
