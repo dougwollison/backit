@@ -11,6 +11,7 @@ from job import JobFile
 filter = backit.get( 'rsync', 'filter' )
 log_file = backit.get( 'rsync', 'log_file' )
 connection = backit.get( 'rsync', 'connection' )
+rsync_path = backit.get( 'rsync', 'executable', 'rsync' )
 source_root = os.path.realpath( backit.get( 'rsync', 'source_root', '/' ) )
 backups_root = os.path.realpath( backit.get( 'rsync', 'backups_root' ) )
 
@@ -21,9 +22,9 @@ prevlink = backit.pathit( backups_root, 'latest' )
 # Build the rsync command
 command = [
 	'/usr/bin/rsync',
-	'-vhrtplH',
+	'-vhrtlH',
 	'-e', 'ssh',
-	'--rsync-path', 'sudo rsync',
+	'--rsync-path', rsync_path,
 	'--log-file', log_file,
 ]
 
