@@ -1,5 +1,20 @@
 # Useless/bloat files/directories
+- .ajax-requests
+- .httpdocs
+- .sass-cache
+- .sql-cache
+- .ajax-requests
+- .git
+- .svn
+- .nvm
+- .npm
+- .cache
+- .nano
+- .wp-cli
 - .bash_history
+- .ssh
+- .yarn
+- .vscode-server
 - tmp
 - cache
 - *_log
@@ -49,6 +64,7 @@
 # The website stuff (skip logs)
 + /var/
 + /var/www/
++ /var/www/etc.tgz
 - /var/www/logs
 - /var/*
 
