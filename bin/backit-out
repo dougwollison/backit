@@ -123,11 +123,10 @@ if separate_folders :
 	for folder in folders :
 		folder = backit.pathit( backup_dir, folder )
 
-		subfolders = sorted( glob( folder ) )
-
-		if len( subfolders ) > 1 :
+		if '*' in folder :
 			prefix = os.path.basename( os.path.dirname( folder ) ) + '-'
 
+			subfolders = sorted( glob( folder ) )
 			for dir in subfolders :
 				make_archive( dir, backup_dir, prefix )
 		else :
