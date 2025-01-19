@@ -59,7 +59,7 @@ def mkdir( dir ) :
 
 	return dir
 
-shutil.rmtree( tarballs_dir )
+# shutil.rmtree( tarballs_dir )
 mkdir( tarballs_dir )
 
 def make_archive( folder, parent = '', prefix = '' ) :
