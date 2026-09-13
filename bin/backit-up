@@ -25,7 +25,6 @@ command = [
 	'-vhrtlH',
 	'-e', 'ssh',
 	'--rsync-path', rsync_path,
-	'--log-file', log_file,
 ]
 
 # If test flag is present, do a dry run
