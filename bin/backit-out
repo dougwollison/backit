@@ -63,6 +63,10 @@ def mkdir( dir ) :
 mkdir( tarballs_dir )
 
 def make_archive( folder, parent = '', prefix = '' ) :
+	# If folder doesn't exist, skip
+	if not os.path.exists( folder ) :
+		return
+
 	"""Create a gzipped tarball of the folder and upload it to B2"""
 
 	basename = prefix + os.path.basename( folder );
